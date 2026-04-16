@@ -38,17 +38,15 @@ function BiteMark({ x1, y1, x2, y2 }: { x1: number; y1: number; x2: number; y2: 
 
 export function BunnyCharacter({ bites }: Props) {
   const [animating, setAnimating] = useState(false);
-  const [prevBites, setPrevBites] = useState(bites);
   const [ghostFading, setGhostFading] = useState(false);
 
   useEffect(() => {
-    if (bites !== prevBites) {
+    if (bites > 0) {
       setAnimating(true);
-      setPrevBites(bites);
-      const t = setTimeout(() => setAnimating(false), 500);
+      const t = setTimeout(() => setAnimating(false), 400);
       return () => clearTimeout(t);
     }
-  }, [bites, prevBites]);
+  }, [bites]);
 
   useEffect(() => {
     if (bites === 8) {
