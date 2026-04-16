@@ -36,63 +36,6 @@ function BiteMark({ x1, y1, x2, y2 }: { x1: number; y1: number; x2: number; y2: 
   );
 }
 
-function GhostOutline({
-  type,
-  opacity,
-}: {
-  type: 'ear' | 'arm' | 'leg' | 'body';
-  opacity: number;
-}) {
-  if (type === 'ear') {
-    return (
-      <ellipse
-        cx="76" cy="42" rx="13" ry="37"
-        fill="none"
-        stroke="rgba(200, 200, 200, 0.4)"
-        strokeWidth="2"
-        strokeDasharray="4,4"
-        opacity={opacity}
-        transform="rotate(-8, 76, 42)"
-      />
-    );
-  }
-  if (type === 'arm') {
-    return (
-      <ellipse
-        cx="57" cy="180" rx="19" ry="11"
-        fill="none"
-        stroke="rgba(200, 200, 200, 0.4)"
-        strokeWidth="2"
-        strokeDasharray="4,4"
-        opacity={opacity}
-        transform="rotate(-28, 57, 180)"
-      />
-    );
-  }
-  if (type === 'leg') {
-    return (
-      <ellipse
-        cx="78" cy="237" rx="22" ry="13"
-        fill="none"
-        stroke="rgba(200, 200, 200, 0.4)"
-        strokeWidth="2"
-        strokeDasharray="4,4"
-        opacity={opacity}
-      />
-    );
-  }
-  return (
-    <ellipse
-      cx="100" cy="192" rx="42" ry="52"
-      fill="none"
-      stroke="rgba(200, 200, 200, 0.4)"
-      strokeWidth="2"
-      strokeDasharray="4,4"
-      opacity={opacity}
-    />
-  );
-}
-
 export function BunnyCharacter({ bites }: Props) {
   const [animating, setAnimating] = useState(false);
   const [prevBites, setPrevBites] = useState(bites);
@@ -188,14 +131,79 @@ export function BunnyCharacter({ bites }: Props) {
         {/* Ground shadow */}
         <ellipse cx="100" cy="260" rx="52" ry="7" fill="#1A0800" opacity="0.12" />
 
-        {/* Ghost outlines for eaten parts */}
-        {bites > 0 && <GhostOutline type="ear" opacity={bites > 1 ? 0 : 0.6} />}
-        {bites > 2 && <GhostOutline type="arm" opacity={0.6} />}
+        {/* Ghost visual of eaten left ear */}
+        {bites > 0 && (
+          <g opacity="0.3">
+            <ellipse
+              cx="76" cy="42" rx="13" ry="37"
+              fill="rgba(200, 180, 160, 0.4)"
+              transform="rotate(-8, 76, 42)"
+            />
+            <ellipse
+              cx="76" cy="44" rx="7" ry="24"
+              fill="rgba(200, 180, 160, 0.2)"
+              transform="rotate(-8, 76, 44)"
+            />
+          </g>
+        )}
+
+        {/* Ghost visual of eaten right ear */}
+        {bites > 1 && (
+          <g opacity="0.3">
+            <ellipse
+              cx="124" cy="42" rx="13" ry="37"
+              fill="rgba(200, 180, 160, 0.4)"
+              transform="rotate(8, 124, 42)"
+            />
+            <ellipse
+              cx="124" cy="44" rx="7" ry="24"
+              fill="rgba(200, 180, 160, 0.2)"
+              transform="rotate(8, 124, 44)"
+            />
+          </g>
+        )}
+
+        {/* Ghost visual of eaten right arm */}
+        {bites > 2 && (
+          <g opacity="0.3">
+            <ellipse
+              cx="143" cy="180" rx="19" ry="11"
+              fill="rgba(200, 180, 160, 0.4)"
+              transform="rotate(28, 143, 180)"
+            />
+          </g>
+        )}
+
+        {/* Ghost visual of eaten left arm */}
         {bites > 3 && (
-          <GhostOutline
-            type="arm"
-            opacity={0.6}
-          />
+          <g opacity="0.3">
+            <ellipse
+              cx="57" cy="180" rx="19" ry="11"
+              fill="rgba(200, 180, 160, 0.4)"
+              transform="rotate(-28, 57, 180)"
+            />
+          </g>
+        )}
+
+        {/* Ghost visual of eaten right leg */}
+        {bites > 4 && (
+          <g opacity="0.3">
+            <ellipse cx="122" cy="237" rx="22" ry="13" fill="rgba(200, 180, 160, 0.4)" />
+          </g>
+        )}
+
+        {/* Ghost visual of eaten left leg */}
+        {bites > 5 && (
+          <g opacity="0.3">
+            <ellipse cx="78" cy="237" rx="22" ry="13" fill="rgba(200, 180, 160, 0.4)" />
+          </g>
+        )}
+
+        {/* Ghost visual of eaten body */}
+        {bites > 6 && (
+          <g opacity="0.3">
+            <ellipse cx="100" cy="192" rx="42" ry="52" fill="rgba(200, 180, 160, 0.4)" />
+          </g>
         )}
 
         {/* RIGHT EAR (behind head) */}
