@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 interface Props {
   bites: number;
+  onGhostAnimationComplete?: () => void;
 }
 
 function BiteMark({ x1, y1, x2, y2 }: { x1: number; y1: number; x2: number; y2: number }) {
@@ -36,9 +37,10 @@ function BiteMark({ x1, y1, x2, y2 }: { x1: number; y1: number; x2: number; y2: 
   );
 }
 
-export function BunnyCharacter({ bites }: Props) {
+export function BunnyCharacter({ bites, onGhostAnimationComplete }: Props) {
   const [animating, setAnimating] = useState(false);
   const [ghostFading, setGhostFading] = useState(false);
+  const [ghostPartsFading, setGhostPartsFading] = useState(false);
 
   useEffect(() => {
     if (bites > 0) {
@@ -50,10 +52,16 @@ export function BunnyCharacter({ bites }: Props) {
 
   useEffect(() => {
     if (bites === 8) {
-      const t = setTimeout(() => setGhostFading(true), 1200);
+      setGhostPartsFading(true);
+      const t = setTimeout(() => {
+        setGhostFading(true);
+        if (onGhostAnimationComplete) {
+          setTimeout(onGhostAnimationComplete, 800);
+        }
+      }, 1000);
       return () => clearTimeout(t);
     }
-  }, [bites]);
+  }, [bites, onGhostAnimationComplete]);
 
   const showEarLeft = bites < 1;
   const showEarRight = bites < 2;
@@ -129,80 +137,79 @@ export function BunnyCharacter({ bites }: Props) {
         {/* Ground shadow */}
         <ellipse cx="100" cy="260" rx="52" ry="7" fill="#1A0800" opacity="0.12" />
 
-        {/* Ghost visual of eaten left ear */}
-        {bites > 0 && (
-          <g opacity="0.3">
-            <ellipse
-              cx="76" cy="42" rx="13" ry="37"
-              fill="rgba(200, 180, 160, 0.4)"
-              transform="rotate(-8, 76, 42)"
-            />
-            <ellipse
-              cx="76" cy="44" rx="7" ry="24"
-              fill="rgba(200, 180, 160, 0.2)"
-              transform="rotate(-8, 76, 44)"
-            />
-          </g>
-        )}
+        {/* Ghost parts container - animates upward and fades on loss */}
+        <g
+          style={{
+            opacity: ghostPartsFading ? 0 : 0.3,
+            transform: ghostPartsFading ? 'translateY(-60px)' : 'translateY(0)',
+            transition: ghostPartsFading ? 'all 0.8s ease-out' : 'none',
+          }}
+        >
+          {/* Ghost visual of eaten left ear */}
+          {bites > 0 && (
+            <>
+              <ellipse
+                cx="76" cy="42" rx="13" ry="37"
+                fill="rgba(200, 180, 160, 0.4)"
+                transform="rotate(-8, 76, 42)"
+              />
+              <ellipse
+                cx="76" cy="44" rx="7" ry="24"
+                fill="rgba(200, 180, 160, 0.2)"
+                transform="rotate(-8, 76, 44)"
+              />
+            </>
+          )}
 
-        {/* Ghost visual of eaten right ear */}
-        {bites > 1 && (
-          <g opacity="0.3">
-            <ellipse
-              cx="124" cy="42" rx="13" ry="37"
-              fill="rgba(200, 180, 160, 0.4)"
-              transform="rotate(8, 124, 42)"
-            />
-            <ellipse
-              cx="124" cy="44" rx="7" ry="24"
-              fill="rgba(200, 180, 160, 0.2)"
-              transform="rotate(8, 124, 44)"
-            />
-          </g>
-        )}
+          {/* Ghost visual of eaten right ear */}
+          {bites > 1 && (
+            <>
+              <ellipse
+                cx="124" cy="42" rx="13" ry="37"
+                fill="rgba(200, 180, 160, 0.4)"
+                transform="rotate(8, 124, 42)"
+              />
+              <ellipse
+                cx="124" cy="44" rx="7" ry="24"
+                fill="rgba(200, 180, 160, 0.2)"
+                transform="rotate(8, 124, 44)"
+              />
+            </>
+          )}
 
-        {/* Ghost visual of eaten right arm */}
-        {bites > 2 && (
-          <g opacity="0.3">
+          {/* Ghost visual of eaten right arm */}
+          {bites > 2 && (
             <ellipse
               cx="143" cy="180" rx="19" ry="11"
               fill="rgba(200, 180, 160, 0.4)"
               transform="rotate(28, 143, 180)"
             />
-          </g>
-        )}
+          )}
 
-        {/* Ghost visual of eaten left arm */}
-        {bites > 3 && (
-          <g opacity="0.3">
+          {/* Ghost visual of eaten left arm */}
+          {bites > 3 && (
             <ellipse
               cx="57" cy="180" rx="19" ry="11"
               fill="rgba(200, 180, 160, 0.4)"
               transform="rotate(-28, 57, 180)"
             />
-          </g>
-        )}
+          )}
 
-        {/* Ghost visual of eaten right leg */}
-        {bites > 4 && (
-          <g opacity="0.3">
+          {/* Ghost visual of eaten right leg */}
+          {bites > 4 && (
             <ellipse cx="122" cy="237" rx="22" ry="13" fill="rgba(200, 180, 160, 0.4)" />
-          </g>
-        )}
+          )}
 
-        {/* Ghost visual of eaten left leg */}
-        {bites > 5 && (
-          <g opacity="0.3">
+          {/* Ghost visual of eaten left leg */}
+          {bites > 5 && (
             <ellipse cx="78" cy="237" rx="22" ry="13" fill="rgba(200, 180, 160, 0.4)" />
-          </g>
-        )}
+          )}
 
-        {/* Ghost visual of eaten body */}
-        {bites > 6 && (
-          <g opacity="0.3">
+          {/* Ghost visual of eaten body */}
+          {bites > 6 && (
             <ellipse cx="100" cy="192" rx="42" ry="52" fill="rgba(200, 180, 160, 0.4)" />
-          </g>
-        )}
+          )}
+        </g>
 
         {/* RIGHT EAR (behind head) */}
         {showEarRight && (

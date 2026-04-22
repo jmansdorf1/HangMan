@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useGame } from './hooks/useGame';
 import { BunnyCharacter } from './components/BunnyCharacter';
 import { WordDisplay } from './components/WordDisplay';
@@ -19,6 +20,25 @@ const BITE_LABELS = [
 
 export default function App() {
   const { state, streak, correctLetters, wrongLetters, guessLetter, startNewGame } = useGame();
+  const [showModal, setShowModal] = useState(false);
+
+  useEffect(() => {
+    if (state.status === 'won') {
+      setShowModal(true);
+    } else if (state.status === 'lost') {
+      setShowModal(false);
+    }
+  }, [state.status]);
+
+  useEffect(() => {
+    if (state.status === 'playing') {
+      setShowModal(false);
+    }
+  }, [state.status]);
+
+  const handleGhostAnimationComplete = () => {
+    setShowModal(true);
+  };
 
   return (
     <div
@@ -108,7 +128,10 @@ export default function App() {
               <p className="text-amber-600 text-sm font-semibold">Finding a word...</p>
             </div>
           ) : (
-            <BunnyCharacter bites={state.wrongGuesses} />
+            <BunnyCharacter
+              bites={state.wrongGuesses}
+              onGhostAnimationComplete={state.status === 'lost' ? handleGhostAnimationComplete : undefined}
+            />
           )}
 
         </div>
@@ -149,7 +172,7 @@ export default function App() {
       </main>
 
       {/* Win / Lose modal */}
-      {(state.status === 'won' || state.status === 'lost') && (
+      {showModal && (state.status === 'won' || state.status === 'lost') && (
         <GameModal
           status={state.status}
           word={state.word}
