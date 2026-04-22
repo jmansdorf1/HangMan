@@ -72,14 +72,16 @@ export function BunnyCharacter({ bites, onGhostAnimationComplete }: Props) {
   const showBody = bites < 7;
   const showHead = bites < 8;
 
-  const getEyeExpression = () => {
-    if (bites === 0) return { sad: false, concerned: false };
-    if (bites <= 2) return { sad: false, concerned: true };
-    if (bites <= 4) return { sad: true, concerned: false };
-    return { sad: true, concerned: false };
+  // Expression stages: 0=neutral, 1-2=concerned, 3-4=worried, 5-6=scared, 7=terrified
+  const getExpressionStage = (): 'neutral' | 'concerned' | 'worried' | 'scared' | 'terrified' => {
+    if (bites === 0) return 'neutral';
+    if (bites <= 2) return 'concerned';
+    if (bites <= 4) return 'worried';
+    if (bites <= 6) return 'scared';
+    return 'terrified';
   };
 
-  const { sad, concerned } = getEyeExpression();
+  const expression = getExpressionStage();
 
   return (
     <div
@@ -353,17 +355,10 @@ export function BunnyCharacter({ bites, onGhostAnimationComplete }: Props) {
             {/* Left eye */}
             <circle cx="85" cy="104" r="9.5" fill="#1A0804" />
             <circle cx="85" cy="104" r="6.5" fill="#2A1208" />
-            {sad ? (
-              <>
-                <path
-                  d="M 80 100 Q 85 103 90 100"
-                  stroke="white"
-                  strokeWidth="2"
-                  fill="none"
-                  strokeLinecap="round"
-                />
-              </>
-            ) : concerned ? (
+            {expression === 'neutral' && (
+              <circle cx="83" cy="102" r="3.2" fill="white" />
+            )}
+            {expression === 'concerned' && (
               <>
                 <circle cx="83" cy="100" r="3.2" fill="white" />
                 <path
@@ -374,26 +369,53 @@ export function BunnyCharacter({ bites, onGhostAnimationComplete }: Props) {
                   strokeLinecap="round"
                 />
               </>
-            ) : (
+            )}
+            {expression === 'worried' && (
               <>
-                <circle cx="83" cy="100" r="3.2" fill="white" />
+                <circle cx="83" cy="98" r="3.5" fill="white" />
+                <path
+                  d="M 78 108 Q 85 110 92 108"
+                  stroke="#1A0804"
+                  strokeWidth="1.5"
+                  fill="none"
+                  strokeLinecap="round"
+                />
+              </>
+            )}
+            {expression === 'scared' && (
+              <>
+                <circle cx="83" cy="96" r="4" fill="white" />
+                <circle cx="81" cy="94" r="1.5" fill="white" opacity="0.7" />
+                <path
+                  d="M 76 110 Q 85 113 94 110"
+                  stroke="#1A0804"
+                  strokeWidth="1.8"
+                  fill="none"
+                  strokeLinecap="round"
+                />
+              </>
+            )}
+            {expression === 'terrified' && (
+              <>
+                <circle cx="83" cy="94" r="4.5" fill="white" />
+                <circle cx="81" cy="92" r="2" fill="white" opacity="0.8" />
+                <path
+                  d="M 74 112 Q 85 116 96 112"
+                  stroke="#1A0804"
+                  strokeWidth="2"
+                  fill="none"
+                  strokeLinecap="round"
+                />
               </>
             )}
 
             {/* Right eye */}
             <circle cx="115" cy="104" r="9.5" fill="#1A0804" />
             <circle cx="115" cy="104" r="6.5" fill="#2A1208" />
-            {sad ? (
-              <>
-                <path
-                  d="M 110 100 Q 115 103 120 100"
-                  stroke="white"
-                  strokeWidth="2"
-                  fill="none"
-                  strokeLinecap="round"
-                />
-              </>
-            ) : concerned ? (
+            {expression === 'neutral' && (
+              <circle cx="113" cy="102" r="3.2" fill="white" />
+            )}
+            {expression === 'concerned' && (
               <>
                 <circle cx="113" cy="100" r="3.2" fill="white" />
                 <path
@@ -404,9 +426,43 @@ export function BunnyCharacter({ bites, onGhostAnimationComplete }: Props) {
                   strokeLinecap="round"
                 />
               </>
-            ) : (
+            )}
+            {expression === 'worried' && (
               <>
-                <circle cx="113" cy="100" r="3.2" fill="white" />
+                <circle cx="113" cy="98" r="3.5" fill="white" />
+                <path
+                  d="M 108 108 Q 115 110 122 108"
+                  stroke="#1A0804"
+                  strokeWidth="1.5"
+                  fill="none"
+                  strokeLinecap="round"
+                />
+              </>
+            )}
+            {expression === 'scared' && (
+              <>
+                <circle cx="113" cy="96" r="4" fill="white" />
+                <circle cx="111" cy="94" r="1.5" fill="white" opacity="0.7" />
+                <path
+                  d="M 106 110 Q 115 113 124 110"
+                  stroke="#1A0804"
+                  strokeWidth="1.8"
+                  fill="none"
+                  strokeLinecap="round"
+                />
+              </>
+            )}
+            {expression === 'terrified' && (
+              <>
+                <circle cx="113" cy="94" r="4.5" fill="white" />
+                <circle cx="111" cy="92" r="2" fill="white" opacity="0.8" />
+                <path
+                  d="M 104 112 Q 115 116 126 112"
+                  stroke="#1A0804"
+                  strokeWidth="2"
+                  fill="none"
+                  strokeLinecap="round"
+                />
               </>
             )}
 
@@ -415,15 +471,7 @@ export function BunnyCharacter({ bites, onGhostAnimationComplete }: Props) {
             <ellipse cx="99" cy="116" rx="1.5" ry="1" fill="white" opacity="0.45" />
 
             {/* MOUTH */}
-            {sad ? (
-              <path
-                d="M 94,128 Q 100,123 106,128"
-                stroke="#8B3840"
-                strokeWidth="2"
-                fill="none"
-                strokeLinecap="round"
-              />
-            ) : (
+            {expression === 'neutral' && (
               <path
                 d="M 94,123 Q 100,131 106,123"
                 stroke="#8B3840"
@@ -432,10 +480,48 @@ export function BunnyCharacter({ bites, onGhostAnimationComplete }: Props) {
                 strokeLinecap="round"
               />
             )}
+            {expression === 'concerned' && (
+              <path
+                d="M 94,126 Q 100,128 106,126"
+                stroke="#8B3840"
+                strokeWidth="2"
+                fill="none"
+                strokeLinecap="round"
+              />
+            )}
+            {expression === 'worried' && (
+              <path
+                d="M 94,128 Q 100,125 106,128"
+                stroke="#8B3840"
+                strokeWidth="2"
+                fill="none"
+                strokeLinecap="round"
+              />
+            )}
+            {expression === 'scared' && (
+              <>
+                <ellipse cx="100" cy="130" rx="6" ry="4" fill="#8B3840" />
+                <ellipse cx="100" cy="129" rx="4" ry="2.5" fill="#3D1A08" />
+              </>
+            )}
+            {expression === 'terrified' && (
+              <>
+                <ellipse cx="100" cy="132" rx="8" ry="5" fill="#8B3840" />
+                <ellipse cx="100" cy="131" rx="5.5" ry="3.5" fill="#3D1A08" />
+              </>
+            )}
 
-            {/* CHEEK BLUSHES */}
-            <circle cx="75" cy="116" r="13" fill="#FF6080" opacity={sad ? '0.1' : '0.2'} />
-            <circle cx="125" cy="116" r="13" fill="#FF6080" opacity={sad ? '0.1' : '0.2'} />
+            {/* CHEEK BLUSHES - fade as fear increases */}
+            <circle
+              cx="75" cy="116" r="13"
+              fill="#FF6080"
+              opacity={expression === 'neutral' ? '0.2' : expression === 'concerned' ? '0.15' : expression === 'worried' ? '0.1' : '0.05'}
+            />
+            <circle
+              cx="125" cy="116" r="13"
+              fill="#FF6080"
+              opacity={expression === 'neutral' ? '0.2' : expression === 'concerned' ? '0.15' : expression === 'worried' ? '0.1' : '0.05'}
+            />
 
             {/* WHISKERS */}
             <line x1="70" y1="114" x2="90" y2="117" stroke="#3D1A08" strokeWidth="0.8" opacity="0.4" />
