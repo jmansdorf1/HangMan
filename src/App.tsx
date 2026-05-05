@@ -4,8 +4,10 @@ import { BunnyCharacter } from './components/BunnyCharacter';
 import { WordDisplay } from './components/WordDisplay';
 import { LetterKeyboard } from './components/LetterKeyboard';
 import { GameModal } from './components/GameModal';
+import { CategorySelector } from './components/CategorySelector';
 
 const MAX_WRONG = 8;
+const CATEGORIES = ['Animals', 'Food', 'Space', 'Nature', 'Sports', 'Colors'];
 
 const BITE_LABELS = [
   'Top of ear bitten off!',
@@ -19,8 +21,15 @@ const BITE_LABELS = [
 ];
 
 export default function App() {
-  const { state, streak, correctLetters, wrongLetters, guessLetter, startNewGame } = useGame();
+  const [selectedCategory, setSelectedCategory] = useState<string | undefined>();
+  const [categoryLoading, setCategoryLoading] = useState(false);
+  const { state, streak, correctLetters, wrongLetters, guessLetter, startNewGame } = useGame(selectedCategory);
   const [showModal, setShowModal] = useState(false);
+
+  const handleCategorySelect = async (category: string) => {
+    setCategoryLoading(true);
+    setSelectedCategory(category);
+  };
 
   useEffect(() => {
     if (state.status === 'won') {
@@ -33,12 +42,23 @@ export default function App() {
   useEffect(() => {
     if (state.status === 'playing') {
       setShowModal(false);
+      setCategoryLoading(false);
     }
   }, [state.status]);
 
   const handleGhostAnimationComplete = () => {
     setShowModal(true);
   };
+
+  if (!selectedCategory) {
+    return (
+      <CategorySelector
+        categories={CATEGORIES}
+        onSelect={handleCategorySelect}
+        isLoading={categoryLoading}
+      />
+    );
+  }
 
   return (
     <div

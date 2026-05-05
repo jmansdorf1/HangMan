@@ -10,19 +10,25 @@ function pickRandom<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-async function fetchRandomWord(): Promise<WordEntry> {
+async function fetchRandomWord(category?: string): Promise<WordEntry> {
   try {
-    const { data, error } = await supabase
-      .from('words')
-      .select('id, word, category, difficulty');
-    if (error || !data || data.length === 0) return pickRandom(fallbackWords);
+    let query = supabase.from('words').select('id, word, category, difficulty');
+    if (category) {
+      query = query.eq('category', category);
+    }
+    const { data, error } = await query;
+    if (error || !data || data.length === 0) {
+      const filtered = category ? fallbackWords.filter(w => w.category === category) : fallbackWords;
+      return pickRandom(filtered.length > 0 ? filtered : fallbackWords);
+    }
     return pickRandom(data as WordEntry[]);
   } catch {
-    return pickRandom(fallbackWords);
+    const filtered = category ? fallbackWords.filter(w => w.category === category) : fallbackWords;
+    return pickRandom(filtered.length > 0 ? filtered : fallbackWords);
   }
 }
 
-export function useGame() {
+export function useGame(selectedCategory?: string) {
   const [state, setState] = useState<GameState>({
     word: '',
     category: '',
@@ -39,7 +45,7 @@ export function useGame() {
 
   const startNewGame = useCallback(async () => {
     setState(prev => ({ ...prev, isLoading: true }));
-    const entry = await fetchRandomWord();
+    const entry = await fetchRandomWord(selectedCategory);
     setState({
       word: entry.word.toUpperCase(),
       category: entry.category,
@@ -48,11 +54,13 @@ export function useGame() {
       status: 'playing',
       isLoading: false,
     });
-  }, []);
+  }, [selectedCategory]);
 
   useEffect(() => {
-    startNewGame();
-  }, [startNewGame]);
+    if (selectedCategory) {
+      startNewGame();
+    }
+  }, [startNewGame, selectedCategory]);
 
   const guessLetter = useCallback((letter: string) => {
     setState(prev => {

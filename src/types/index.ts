@@ -6,6 +6,7 @@ export interface WordEntry {
 }
 
 export type GameStatus = 'playing' | 'won' | 'lost';
+export type AppStatus = 'selecting' | 'playing' | 'won' | 'lost';
 
 export interface GameState {
   word: string;
