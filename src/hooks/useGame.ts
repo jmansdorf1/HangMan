@@ -60,7 +60,7 @@ export function useGame(selectedCategory?: string) {
     if (selectedCategory) {
       startNewGame();
     }
-  }, [startNewGame, selectedCategory]);
+  }, [selectedCategory]);
 
   const guessLetter = useCallback((letter: string) => {
     setState(prev => {

@@ -3,62 +3,32 @@ import { useGame } from './hooks/useGame';
 import { BunnyCharacter } from './components/BunnyCharacter';
 import { WordDisplay } from './components/WordDisplay';
 import { LetterKeyboard } from './components/LetterKeyboard';
-import { GameModal } from './components/GameModal';
-import { CategorySelector } from './components/CategorySelector';
 
 const MAX_WRONG = 8;
 const CATEGORIES = ['Animals', 'Food', 'Space', 'Nature', 'Sports', 'Colors'];
 
-const BITE_LABELS = [
-  'Top of ear bitten off!',
-  'Full ear gone!',
-  'Right arm eaten!',
-  'Left arm eaten!',
-  'Right leg gone!',
-  'Left leg gone!',
-  'Body chomped!',
-  'Head eaten!',
-];
-
 export default function App() {
-  const [selectedCategory, setSelectedCategory] = useState<string | undefined>();
-  const [categoryLoading, setCategoryLoading] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>(CATEGORIES[0]);
+  const [showResult, setShowResult] = useState(false);
   const { state, streak, correctLetters, wrongLetters, guessLetter, startNewGame } = useGame(selectedCategory);
-  const [showModal, setShowModal] = useState(false);
-
-  const handleCategorySelect = async (category: string) => {
-    setCategoryLoading(true);
-    setSelectedCategory(category);
-  };
 
   useEffect(() => {
-    if (state.status === 'won') {
-      setShowModal(true);
-    } else if (state.status === 'lost') {
-      setShowModal(false);
+    if (state.status !== 'playing') {
+      setShowResult(true);
     }
   }, [state.status]);
 
-  useEffect(() => {
-    if (state.status === 'playing') {
-      setShowModal(false);
-      setCategoryLoading(false);
-    }
-  }, [state.status]);
-
-  const handleGhostAnimationComplete = () => {
-    setShowModal(true);
+  const handlePlayAgain = () => {
+    setShowResult(false);
+    startNewGame();
   };
 
-  if (!selectedCategory) {
-    return (
-      <CategorySelector
-        categories={CATEGORIES}
-        onSelect={handleCategorySelect}
-        isLoading={categoryLoading}
-      />
-    );
-  }
+  const handleCategoryChange = (category: string) => {
+    if (category !== selectedCategory) {
+      setSelectedCategory(category);
+      setShowResult(false);
+    }
+  };
 
   return (
     <div
@@ -69,34 +39,47 @@ export default function App() {
       }}
     >
       {/* Header */}
-      <header className="w-full max-w-sm pt-8 pb-2 px-5 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-extrabold text-amber-900 leading-tight tracking-tight">
-            Choco Bunny
-          </h1>
-          <p className="text-xs text-amber-600 font-semibold uppercase tracking-wider">
-            Hangman
-          </p>
-        </div>
-        {streak > 0 && (
-          <div className="bg-amber-800 text-amber-100 rounded-2xl px-4 py-1.5 flex flex-col items-center shadow-md">
-            <span className="text-lg font-extrabold leading-none">{streak}</span>
-            <span className="text-xs font-semibold uppercase tracking-wide opacity-80">streak</span>
+      <header className="w-full max-w-sm pt-8 pb-2 px-5">
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <h1 className="text-2xl font-extrabold text-amber-900 leading-tight tracking-tight">
+              Choco Bunny
+            </h1>
+            <p className="text-xs text-amber-600 font-semibold uppercase tracking-wider">
+              Hangman
+            </p>
           </div>
-        )}
+          {streak > 0 && (
+            <div className="bg-amber-800 text-amber-100 rounded-2xl px-4 py-1.5 flex flex-col items-center shadow-md">
+              <span className="text-lg font-extrabold leading-none">{streak}</span>
+              <span className="text-xs font-semibold uppercase tracking-wide opacity-80">streak</span>
+            </div>
+          )}
+        </div>
+
+        {/* Category dropdown */}
+        <div className="flex items-center gap-2">
+          <label htmlFor="category" className="text-xs font-semibold text-amber-700 uppercase tracking-wider">
+            Category:
+          </label>
+          <select
+            id="category"
+            value={selectedCategory}
+            onChange={(e) => handleCategoryChange(e.target.value)}
+            disabled={state.status !== 'playing' && !showResult}
+            className="bg-white bg-opacity-70 border border-amber-200 text-amber-900 text-sm font-semibold rounded-xl px-3 py-1.5 shadow-sm cursor-pointer hover:bg-opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {CATEGORIES.map(cat => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
+        </div>
       </header>
 
       {/* Main */}
       <main className="w-full max-w-sm flex-1 flex flex-col gap-4 px-4 pb-8">
-
-        {/* Category badge */}
-        {!state.isLoading && (
-          <div className="flex justify-center">
-            <span className="bg-white bg-opacity-70 border border-amber-200 text-amber-700 text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full shadow-sm">
-              {state.category}
-            </span>
-          </div>
-        )}
 
         {/* Bunny card */}
         <div
@@ -148,10 +131,37 @@ export default function App() {
               <p className="text-amber-600 text-sm font-semibold">Finding a word...</p>
             </div>
           ) : (
-            <BunnyCharacter
-              bites={state.wrongGuesses}
-              onGhostAnimationComplete={state.status === 'lost' ? handleGhostAnimationComplete : undefined}
-            />
+            <>
+              <BunnyCharacter
+                bites={state.wrongGuesses}
+                onGhostAnimationComplete={state.status === 'lost' ? () => setShowResult(true) : undefined}
+              />
+
+              {/* Result overlay */}
+              {showResult && (state.status === 'won' || state.status === 'lost') && (
+                <div className="bg-white bg-opacity-90 rounded-2xl p-5 text-center backdrop-blur-sm">
+                  {state.status === 'won' ? (
+                    <>
+                      <p className="text-2xl font-extrabold text-amber-900 mb-2">You Won!</p>
+                      <p className="text-sm text-amber-700 mb-3">The word was:</p>
+                      <p className="text-lg font-bold text-amber-800 mb-4 tracking-widest">{state.word}</p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-2xl font-extrabold text-rose-900 mb-2">You Lost!</p>
+                      <p className="text-sm text-rose-700 mb-3">The word was:</p>
+                      <p className="text-lg font-bold text-rose-800 mb-4 tracking-widest">{state.word}</p>
+                    </>
+                  )}
+                  <button
+                    onClick={handlePlayAgain}
+                    className="bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 active:scale-95 text-white font-bold py-2 px-6 rounded-xl transition-all duration-150 shadow-md"
+                  >
+                    Play Again
+                  </button>
+                </div>
+              )}
+            </>
           )}
 
         </div>
@@ -190,16 +200,6 @@ export default function App() {
           </div>
         )}
       </main>
-
-      {/* Win / Lose modal */}
-      {showModal && (state.status === 'won' || state.status === 'lost') && (
-        <GameModal
-          status={state.status}
-          word={state.word}
-          streak={streak}
-          onPlayAgain={startNewGame}
-        />
-      )}
     </div>
   );
 }
