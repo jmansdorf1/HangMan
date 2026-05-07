@@ -170,18 +170,16 @@ export default function App() {
         {!state.isLoading && (
           <div className="bg-white bg-opacity-70 rounded-3xl shadow-md p-5">
             <WordDisplay word={state.word} guessedLetters={state.guessedLetters} />
-            {wrongLetters.length > 0 && (
-              <div className="mt-3 flex flex-wrap gap-1.5 justify-center">
-                {wrongLetters.map(l => (
-                  <span
-                    key={l}
-                    className="bg-rose-100 text-rose-500 font-bold text-xs rounded-lg px-2 py-0.5 border border-rose-200"
-                  >
-                    {l}
-                  </span>
-                ))}
-              </div>
-            )}
+            <div className="mt-3 flex flex-wrap gap-1.5 justify-center min-h-6">
+              {wrongLetters.map(l => (
+                <span
+                  key={l}
+                  className="bg-rose-100 text-rose-500 font-bold text-xs rounded-lg px-2 py-0.5 border border-rose-200"
+                >
+                  {l}
+                </span>
+              ))}
+            </div>
           </div>
         )}
 
