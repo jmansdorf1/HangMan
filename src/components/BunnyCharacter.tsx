@@ -39,7 +39,6 @@ function BiteMark({ x1, y1, x2, y2 }: { x1: number; y1: number; x2: number; y2: 
 
 export function BunnyCharacter({ bites, onGhostAnimationComplete }: Props) {
   const [animating, setAnimating] = useState(false);
-  const [ghostFading, setGhostFading] = useState(false);
   const [ghostPartsFading, setGhostPartsFading] = useState(false);
 
   useEffect(() => {
@@ -53,13 +52,10 @@ export function BunnyCharacter({ bites, onGhostAnimationComplete }: Props) {
   useEffect(() => {
     if (bites === 8) {
       setGhostPartsFading(true);
-      const t = setTimeout(() => {
-        setGhostFading(true);
-        if (onGhostAnimationComplete) {
-          setTimeout(onGhostAnimationComplete, 800);
-        }
-      }, 1000);
-      return () => clearTimeout(t);
+      if (onGhostAnimationComplete) {
+        const t = setTimeout(onGhostAnimationComplete, 800);
+        return () => clearTimeout(t);
+      }
     }
   }, [bites, onGhostAnimationComplete]);
 
@@ -98,9 +94,6 @@ export function BunnyCharacter({ bites, onGhostAnimationComplete }: Props) {
           maxWidth: 280,
           display: 'block',
           margin: '0 auto',
-          opacity: ghostFading ? 0 : 1,
-          transform: ghostFading ? 'translateY(-80px)' : 'translateY(0)',
-          transition: ghostFading ? 'all 0.6s ease-out' : 'none',
         }}
       >
         <defs>
@@ -139,154 +132,80 @@ export function BunnyCharacter({ bites, onGhostAnimationComplete }: Props) {
         {/* Ground shadow */}
         <ellipse cx="100" cy="260" rx="52" ry="7" fill="#1A0800" opacity="0.12" />
 
-        {/* Ghost parts container - only shows when NOT animating away */}
-        {!ghostPartsFading && (
-          <g style={{ opacity: 0.3 }}>
-            {/* Ghost visual of eaten left ear */}
-            {bites > 0 && (
-              <>
-                <ellipse
-                  cx="76" cy="42" rx="13" ry="37"
-                  fill="rgba(200, 180, 160, 0.4)"
-                  transform="rotate(-8, 76, 42)"
-                />
-                <ellipse
-                  cx="76" cy="44" rx="7" ry="24"
-                  fill="rgba(200, 180, 160, 0.2)"
-                  transform="rotate(-8, 76, 44)"
-                />
-              </>
-            )}
-
-            {/* Ghost visual of eaten right ear */}
-            {bites > 1 && (
-              <>
-                <ellipse
-                  cx="124" cy="42" rx="13" ry="37"
-                  fill="rgba(200, 180, 160, 0.4)"
-                  transform="rotate(8, 124, 42)"
-                />
-                <ellipse
-                  cx="124" cy="44" rx="7" ry="24"
-                  fill="rgba(200, 180, 160, 0.2)"
-                  transform="rotate(8, 124, 44)"
-                />
-              </>
-            )}
-
-            {/* Ghost visual of eaten right arm */}
-            {bites > 2 && (
+        {/* Ghost container - wraps all visible body parts and animates on loss */}
+        <g
+          style={{
+            opacity: ghostPartsFading ? 0 : 0.3,
+            transform: ghostPartsFading ? 'translateY(-60px)' : 'translateY(0)',
+            transition: ghostPartsFading ? 'all 0.8s ease-out' : 'none',
+            pointerEvents: ghostPartsFading ? 'none' : 'auto',
+          }}
+        >
+          {/* Ghost visual of eaten left ear */}
+          {bites > 0 && (
+            <>
               <ellipse
-                cx="143" cy="180" rx="19" ry="11"
+                cx="76" cy="42" rx="13" ry="37"
                 fill="rgba(200, 180, 160, 0.4)"
-                transform="rotate(28, 143, 180)"
+                transform="rotate(-8, 76, 42)"
               />
-            )}
-
-            {/* Ghost visual of eaten left arm */}
-            {bites > 3 && (
               <ellipse
-                cx="57" cy="180" rx="19" ry="11"
-                fill="rgba(200, 180, 160, 0.4)"
-                transform="rotate(-28, 57, 180)"
+                cx="76" cy="44" rx="7" ry="24"
+                fill="rgba(200, 180, 160, 0.2)"
+                transform="rotate(-8, 76, 44)"
               />
-            )}
+            </>
+          )}
 
-            {/* Ghost visual of eaten right leg */}
-            {bites > 4 && (
-              <ellipse cx="122" cy="237" rx="22" ry="13" fill="rgba(200, 180, 160, 0.4)" />
-            )}
+          {/* Ghost visual of eaten right ear */}
+          {bites > 1 && (
+            <>
+              <ellipse
+                cx="124" cy="42" rx="13" ry="37"
+                fill="rgba(200, 180, 160, 0.4)"
+                transform="rotate(8, 124, 42)"
+              />
+              <ellipse
+                cx="124" cy="44" rx="7" ry="24"
+                fill="rgba(200, 180, 160, 0.2)"
+                transform="rotate(8, 124, 44)"
+              />
+            </>
+          )}
 
-            {/* Ghost visual of eaten left leg */}
-            {bites > 5 && (
-              <ellipse cx="78" cy="237" rx="22" ry="13" fill="rgba(200, 180, 160, 0.4)" />
-            )}
-
-            {/* Ghost visual of eaten body */}
-            {bites > 6 && (
-              <ellipse cx="100" cy="192" rx="42" ry="52" fill="rgba(200, 180, 160, 0.4)" />
-            )}
-          </g>
-        )}
-
-        {/* Assembled ghost bunny - animates upward on loss */}
-        {ghostPartsFading && (
-          <g
-            style={{
-              opacity: ghostPartsFading ? 1 : 0,
-              transform: ghostPartsFading ? 'translateY(-120px)' : 'translateY(0)',
-              transition: ghostPartsFading ? 'all 0.8s ease-out' : 'none',
-              pointerEvents: 'none',
-            }}
-          >
-            {/* Ghost left ear */}
-            <ellipse
-              cx="76" cy="42" rx="13" ry="37"
-              fill="rgba(200, 180, 160, 0.5)"
-              transform="rotate(-8, 76, 42)"
-            />
-            <ellipse
-              cx="76" cy="44" rx="7" ry="24"
-              fill="rgba(200, 180, 160, 0.3)"
-              transform="rotate(-8, 76, 44)"
-            />
-
-            {/* Ghost right ear */}
-            <ellipse
-              cx="124" cy="42" rx="13" ry="37"
-              fill="rgba(200, 180, 160, 0.5)"
-              transform="rotate(8, 124, 42)"
-            />
-            <ellipse
-              cx="124" cy="44" rx="7" ry="24"
-              fill="rgba(200, 180, 160, 0.3)"
-              transform="rotate(8, 124, 44)"
-            />
-
-            {/* Ghost body */}
-            <ellipse cx="100" cy="192" rx="42" ry="52" fill="rgba(200, 180, 160, 0.5)" />
-
-            {/* Ghost right arm */}
+          {/* Ghost visual of eaten right arm */}
+          {bites > 2 && (
             <ellipse
               cx="143" cy="180" rx="19" ry="11"
-              fill="rgba(200, 180, 160, 0.5)"
+              fill="rgba(200, 180, 160, 0.4)"
               transform="rotate(28, 143, 180)"
             />
+          )}
 
-            {/* Ghost left arm */}
+          {/* Ghost visual of eaten left arm */}
+          {bites > 3 && (
             <ellipse
               cx="57" cy="180" rx="19" ry="11"
-              fill="rgba(200, 180, 160, 0.5)"
+              fill="rgba(200, 180, 160, 0.4)"
               transform="rotate(-28, 57, 180)"
             />
+          )}
 
-            {/* Ghost right leg */}
-            <ellipse cx="122" cy="237" rx="22" ry="13" fill="rgba(200, 180, 160, 0.5)" />
+          {/* Ghost visual of eaten right leg */}
+          {bites > 4 && (
+            <ellipse cx="122" cy="237" rx="22" ry="13" fill="rgba(200, 180, 160, 0.4)" />
+          )}
 
-            {/* Ghost left leg */}
-            <ellipse cx="78" cy="237" rx="22" ry="13" fill="rgba(200, 180, 160, 0.5)" />
+          {/* Ghost visual of eaten left leg */}
+          {bites > 5 && (
+            <ellipse cx="78" cy="237" rx="22" ry="13" fill="rgba(200, 180, 160, 0.4)" />
+          )}
 
-            {/* Ghost head */}
-            <circle cx="100" cy="108" r="44" fill="rgba(200, 180, 160, 0.5)" />
-
-            {/* Terrified ghost face */}
-            {/* Left eye - wide open */}
-            <circle cx="85" cy="104" r="9.5" fill="rgba(100, 100, 100, 0.6)" />
-            <circle cx="85" cy="104" r="6.5" fill="rgba(150, 150, 150, 0.6)" />
-            <circle cx="83" cy="94" r="4.5" fill="white" />
-            <circle cx="81" cy="92" r="2" fill="white" opacity="0.8" />
-
-            {/* Right eye - wide open */}
-            <circle cx="115" cy="104" r="9.5" fill="rgba(100, 100, 100, 0.6)" />
-            <circle cx="115" cy="104" r="6.5" fill="rgba(150, 150, 150, 0.6)" />
-            <circle cx="113" cy="94" r="4.5" fill="white" />
-            <circle cx="111" cy="92" r="2" fill="white" opacity="0.8" />
-
-            {/* Terrified mouth - wide open */}
-            <ellipse cx="100" cy="132" rx="8" ry="5" fill="rgba(139, 56, 64, 0.6)" />
-            <ellipse cx="100" cy="131" rx="5.5" ry="3.5" fill="rgba(61, 26, 8, 0.6)" />
-          </g>
-        )}
+          {/* Ghost visual of eaten body */}
+          {bites > 6 && (
+            <ellipse cx="100" cy="192" rx="42" ry="52" fill="rgba(200, 180, 160, 0.4)" />
+          )}
+        </g>
 
         {/* RIGHT EAR (behind head) */}
         {showEarRight && (
