@@ -97,6 +97,13 @@ export function BunnyCharacter({ bites, onGhostAnimationComplete }: Props) {
         }}
       >
         <defs>
+          <mask id="leftEyeMask">
+            <circle cx="85" cy="104" r="6.5" fill="white" />
+          </mask>
+          <mask id="rightEyeMask">
+            <circle cx="115" cy="104" r="6.5" fill="white" />
+          </mask>
+
           <radialGradient id="chocMain" cx="38%" cy="30%" r="65%">
             <stop offset="0%" stopColor="#C48040" />
             <stop offset="55%" stopColor="#7B4020" />
@@ -347,115 +354,129 @@ export function BunnyCharacter({ bites, onGhostAnimationComplete }: Props) {
             {/* Left eye */}
             <circle cx="85" cy="104" r="9.5" fill="#1A0804" />
             <circle cx="85" cy="104" r="6.5" fill="#2A1208" />
-            {expression === 'neutral' && (
-              <circle cx="83" cy="102" r="3.2" fill="white" />
-            )}
-            {expression === 'concerned' && (
-              <>
+            <g mask="url(#leftEyeMask)">
+              {expression === 'neutral' && (
+                <circle cx="83" cy="102" r="3.2" fill="white" />
+              )}
+              {expression === 'concerned' && (
                 <circle cx="83" cy="100" r="3.2" fill="white" />
-                <path
-                  d="M 78 105 Q 85 107 92 105"
-                  stroke="#1A0804"
-                  strokeWidth="1.2"
-                  fill="none"
-                  strokeLinecap="round"
-                />
-              </>
+              )}
+              {expression === 'worried' && (
+                <circle cx="83" cy="98" r="3.5" fill="white" />
+              )}
+              {expression === 'scared' && (
+                <>
+                  <circle cx="83" cy="96" r="4" fill="white" />
+                  <circle cx="81" cy="94" r="1.5" fill="white" opacity="0.7" />
+                </>
+              )}
+              {expression === 'terrified' && (
+                <>
+                  <circle cx="83" cy="94" r="4.5" fill="white" />
+                  <circle cx="81" cy="92" r="2" fill="white" opacity="0.8" />
+                </>
+              )}
+            </g>
+            {/* Left eye brow */}
+            {expression === 'concerned' && (
+              <path
+                d="M 78 105 Q 85 107 92 105"
+                stroke="#1A0804"
+                strokeWidth="1.2"
+                fill="none"
+                strokeLinecap="round"
+              />
             )}
             {expression === 'worried' && (
-              <>
-                <circle cx="83" cy="98" r="3.5" fill="white" />
-                <path
-                  d="M 78 108 Q 85 110 92 108"
-                  stroke="#1A0804"
-                  strokeWidth="1.5"
-                  fill="none"
-                  strokeLinecap="round"
-                />
-              </>
+              <path
+                d="M 78 108 Q 85 110 92 108"
+                stroke="#1A0804"
+                strokeWidth="1.5"
+                fill="none"
+                strokeLinecap="round"
+              />
             )}
             {expression === 'scared' && (
-              <>
-                <circle cx="83" cy="96" r="4" fill="white" />
-                <circle cx="81" cy="94" r="1.5" fill="white" opacity="0.7" />
-                <path
-                  d="M 76 110 Q 85 113 94 110"
-                  stroke="#1A0804"
-                  strokeWidth="1.8"
-                  fill="none"
-                  strokeLinecap="round"
-                />
-              </>
+              <path
+                d="M 76 110 Q 85 113 94 110"
+                stroke="#1A0804"
+                strokeWidth="1.8"
+                fill="none"
+                strokeLinecap="round"
+              />
             )}
             {expression === 'terrified' && (
-              <>
-                <circle cx="83" cy="94" r="4.5" fill="white" />
-                <circle cx="81" cy="92" r="2" fill="white" opacity="0.8" />
-                <path
-                  d="M 74 112 Q 85 116 96 112"
-                  stroke="#1A0804"
-                  strokeWidth="2"
-                  fill="none"
-                  strokeLinecap="round"
-                />
-              </>
+              <path
+                d="M 74 112 Q 85 116 96 112"
+                stroke="#1A0804"
+                strokeWidth="2"
+                fill="none"
+                strokeLinecap="round"
+              />
             )}
 
             {/* Right eye */}
             <circle cx="115" cy="104" r="9.5" fill="#1A0804" />
             <circle cx="115" cy="104" r="6.5" fill="#2A1208" />
-            {expression === 'neutral' && (
-              <circle cx="113" cy="102" r="3.2" fill="white" />
-            )}
-            {expression === 'concerned' && (
-              <>
+            <g mask="url(#rightEyeMask)">
+              {expression === 'neutral' && (
+                <circle cx="113" cy="102" r="3.2" fill="white" />
+              )}
+              {expression === 'concerned' && (
                 <circle cx="113" cy="100" r="3.2" fill="white" />
-                <path
-                  d="M 108 105 Q 115 107 122 105"
-                  stroke="#1A0804"
-                  strokeWidth="1.2"
-                  fill="none"
-                  strokeLinecap="round"
-                />
-              </>
+              )}
+              {expression === 'worried' && (
+                <circle cx="113" cy="98" r="3.5" fill="white" />
+              )}
+              {expression === 'scared' && (
+                <>
+                  <circle cx="113" cy="96" r="4" fill="white" />
+                  <circle cx="111" cy="94" r="1.5" fill="white" opacity="0.7" />
+                </>
+              )}
+              {expression === 'terrified' && (
+                <>
+                  <circle cx="113" cy="94" r="4.5" fill="white" />
+                  <circle cx="111" cy="92" r="2" fill="white" opacity="0.8" />
+                </>
+              )}
+            </g>
+            {/* Right eye brow */}
+            {expression === 'concerned' && (
+              <path
+                d="M 108 105 Q 115 107 122 105"
+                stroke="#1A0804"
+                strokeWidth="1.2"
+                fill="none"
+                strokeLinecap="round"
+              />
             )}
             {expression === 'worried' && (
-              <>
-                <circle cx="113" cy="98" r="3.5" fill="white" />
-                <path
-                  d="M 108 108 Q 115 110 122 108"
-                  stroke="#1A0804"
-                  strokeWidth="1.5"
-                  fill="none"
-                  strokeLinecap="round"
-                />
-              </>
+              <path
+                d="M 108 108 Q 115 110 122 108"
+                stroke="#1A0804"
+                strokeWidth="1.5"
+                fill="none"
+                strokeLinecap="round"
+              />
             )}
             {expression === 'scared' && (
-              <>
-                <circle cx="113" cy="96" r="4" fill="white" />
-                <circle cx="111" cy="94" r="1.5" fill="white" opacity="0.7" />
-                <path
-                  d="M 106 110 Q 115 113 124 110"
-                  stroke="#1A0804"
-                  strokeWidth="1.8"
-                  fill="none"
-                  strokeLinecap="round"
-                />
-              </>
+              <path
+                d="M 106 110 Q 115 113 124 110"
+                stroke="#1A0804"
+                strokeWidth="1.8"
+                fill="none"
+                strokeLinecap="round"
+              />
             )}
             {expression === 'terrified' && (
-              <>
-                <circle cx="113" cy="94" r="4.5" fill="white" />
-                <circle cx="111" cy="92" r="2" fill="white" opacity="0.8" />
-                <path
-                  d="M 104 112 Q 115 116 126 112"
-                  stroke="#1A0804"
-                  strokeWidth="2"
-                  fill="none"
-                  strokeLinecap="round"
-                />
-              </>
+              <path
+                d="M 104 112 Q 115 116 126 112"
+                stroke="#1A0804"
+                strokeWidth="2"
+                fill="none"
+                strokeLinecap="round"
+              />
             )}
 
             {/* NOSE */}
