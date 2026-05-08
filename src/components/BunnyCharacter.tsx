@@ -135,9 +135,7 @@ export function BunnyCharacter({ bites, onGhostAnimationComplete }: Props) {
         {/* Ghost container - wraps all visible body parts and animates on loss */}
         <g
           style={{
-            opacity: ghostPartsFading ? 0 : 0.3,
-            transform: ghostPartsFading ? 'translateY(-60px)' : 'translateY(0)',
-            transition: ghostPartsFading ? 'all 0.8s ease-out' : 'none',
+            animation: ghostPartsFading ? 'ghostWobble 0.8s ease-out forwards' : 'none',
             pointerEvents: ghostPartsFading ? 'none' : 'auto',
           }}
         >
