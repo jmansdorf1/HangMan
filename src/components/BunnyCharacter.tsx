@@ -102,10 +102,10 @@ export function BunnyCharacter({ bites, onGhostAnimationComplete }: Props) {
       >
         <defs>
           <mask id="leftEyeMask">
-            <circle cx="85" cy="104" r="6.5" fill="white" />
+            <rect x="60" y="80" width="50" height="50" fill="white" />
           </mask>
           <mask id="rightEyeMask">
-            <circle cx="115" cy="104" r="6.5" fill="white" />
+            <rect x="90" y="80" width="50" height="50" fill="white" />
           </mask>
 
           <radialGradient id="chocMain" cx="38%" cy="30%" r="65%">
