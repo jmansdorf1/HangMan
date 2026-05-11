@@ -39,6 +39,7 @@ function BiteMark({ x1, y1, x2, y2 }: { x1: number; y1: number; x2: number; y2: 
 
 export function BunnyCharacter({ bites, onGhostAnimationComplete }: Props) {
   const [animating, setAnimating] = useState(false);
+  const [ghostHeadOutline, setGhostHeadOutline] = useState(false);
   const [ghostPartsFading, setGhostPartsFading] = useState(false);
 
   useEffect(() => {
@@ -51,11 +52,14 @@ export function BunnyCharacter({ bites, onGhostAnimationComplete }: Props) {
 
   useEffect(() => {
     if (bites === 8) {
-      setGhostPartsFading(true);
-      if (onGhostAnimationComplete) {
-        const t = setTimeout(onGhostAnimationComplete, 800);
-        return () => clearTimeout(t);
-      }
+      setGhostHeadOutline(true);
+      const t = setTimeout(() => {
+        setGhostPartsFading(true);
+        if (onGhostAnimationComplete) {
+          setTimeout(onGhostAnimationComplete, 800);
+        }
+      }, 800);
+      return () => clearTimeout(t);
     }
   }, [bites, onGhostAnimationComplete]);
 
@@ -210,6 +214,72 @@ export function BunnyCharacter({ bites, onGhostAnimationComplete }: Props) {
           {bites > 6 && (
             <ellipse cx="100" cy="192" rx="42" ry="52" fill="rgba(200, 180, 160, 0.4)" />
           )}
+
+          {/* Ghost head - included in float animation */}
+          {ghostPartsFading && ghostHeadOutline && (
+            <g style={{ opacity: 0.5 }}>
+              <circle
+                cx="100" cy="108" r="44"
+                fill="none"
+                stroke="rgba(200, 180, 160, 0.6)"
+                strokeWidth="2"
+              />
+              <circle
+                cx="85" cy="104" r="9.5"
+                fill="none"
+                stroke="rgba(200, 180, 160, 0.6)"
+                strokeWidth="1.5"
+              />
+              <circle
+                cx="85" cy="104" r="6.5"
+                fill="none"
+                stroke="rgba(200, 180, 160, 0.5)"
+                strokeWidth="1"
+              />
+              <circle
+                cx="115" cy="104" r="9.5"
+                fill="none"
+                stroke="rgba(200, 180, 160, 0.6)"
+                strokeWidth="1.5"
+              />
+              <circle
+                cx="115" cy="104" r="6.5"
+                fill="none"
+                stroke="rgba(200, 180, 160, 0.5)"
+                strokeWidth="1"
+              />
+              <path
+                d="M 74 112 Q 85 116 96 112"
+                stroke="rgba(200, 180, 160, 0.6)"
+                strokeWidth="2"
+                fill="none"
+                strokeLinecap="round"
+              />
+              <path
+                d="M 104 112 Q 115 116 126 112"
+                stroke="rgba(200, 180, 160, 0.6)"
+                strokeWidth="2"
+                fill="none"
+                strokeLinecap="round"
+              />
+              <ellipse
+                cx="100" cy="117" rx="4.5" ry="3.5"
+                fill="none"
+                stroke="rgba(200, 180, 160, 0.6)"
+                strokeWidth="1"
+              />
+              <ellipse
+                cx="100" cy="132" rx="8" ry="5"
+                fill="none"
+                stroke="rgba(200, 180, 160, 0.6)"
+                strokeWidth="1"
+              />
+              <line x1="70" y1="114" x2="90" y2="117" stroke="rgba(200, 180, 160, 0.4)" strokeWidth="0.8" opacity="0.4" />
+              <line x1="70" y1="119" x2="90" y2="119" stroke="rgba(200, 180, 160, 0.4)" strokeWidth="0.8" opacity="0.4" />
+              <line x1="110" y1="117" x2="130" y2="114" stroke="rgba(200, 180, 160, 0.4)" strokeWidth="0.8" opacity="0.4" />
+              <line x1="110" y1="119" x2="130" y2="119" stroke="rgba(200, 180, 160, 0.4)" strokeWidth="0.8" opacity="0.4" />
+            </g>
+          )}
         </g>
 
         {/* RIGHT EAR (behind head) */}
@@ -341,47 +411,56 @@ export function BunnyCharacter({ bites, onGhostAnimationComplete }: Props) {
         )}
 
         {/* HEAD */}
-        {showHead && (
-          <g filter="url(#softShadow)">
-            <circle cx="100" cy="108" r="44" fill="url(#chocHead)" />
-            <ellipse
-              cx="119" cy="88" rx="13" ry="7"
-              fill="white" opacity="0.13"
-              transform="rotate(-35, 119, 88)"
+        {(showHead || (ghostHeadOutline && !ghostPartsFading)) && (
+          <g
+            filter={showHead ? 'url(#softShadow)' : undefined}
+            style={{
+              opacity: ghostHeadOutline && !ghostPartsFading ? 0.5 : ghostPartsFading ? 0 : 1,
+              transition: ghostHeadOutline ? 'opacity 0.4s ease' : 'none',
+            }}
+          >
+            <circle
+              cx="100" cy="108" r="44"
+              fill={ghostHeadOutline ? 'none' : 'url(#chocHead)'}
+              stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.6)' : 'none'}
+              strokeWidth={ghostHeadOutline ? 2 : 0}
             />
+            {!ghostHeadOutline && (
+              <ellipse
+                cx="119" cy="88" rx="13" ry="7"
+                fill="white" opacity="0.13"
+                transform="rotate(-35, 119, 88)"
+              />
+            )}
 
             {/* EYES */}
             {/* Left eye */}
-            <circle cx="85" cy="104" r="9.5" fill="#1A0804" />
-            <circle cx="85" cy="104" r="6.5" fill="#2A1208" />
-            <g mask="url(#leftEyeMask)">
-              {expression === 'neutral' && (
-                <circle cx="83" cy="102" r="3.2" fill="white" />
-              )}
-              {expression === 'concerned' && (
-                <circle cx="83" cy="100" r="3.2" fill="white" />
-              )}
-              {expression === 'worried' && (
-                <circle cx="83" cy="98" r="3.5" fill="white" />
-              )}
-              {expression === 'scared' && (
-                <>
-                  <circle cx="83" cy="96" r="4" fill="white" />
-                  <circle cx="81" cy="94" r="1.5" fill="white" opacity="0.7" />
-                </>
-              )}
-              {expression === 'terrified' && (
-                <>
-                  <circle cx="83" cy="94" r="4.5" fill="white" />
-                  <circle cx="81" cy="92" r="2" fill="white" opacity="0.8" />
-                </>
-              )}
-            </g>
+            <circle
+              cx="85" cy="104" r="9.5"
+              fill={ghostHeadOutline ? 'none' : '#1A0804'}
+              stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.6)' : 'none'}
+              strokeWidth={ghostHeadOutline ? 1.5 : 0}
+            />
+            <circle
+              cx="85" cy="104" r="6.5"
+              fill={ghostHeadOutline ? 'none' : '#2A1208'}
+              stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.5)' : 'none'}
+              strokeWidth={ghostHeadOutline ? 1 : 0}
+            />
+            {!ghostHeadOutline && (
+              <g mask="url(#leftEyeMask)">
+                <circle
+                  cx="83" cy="102" r="2.8"
+                  fill="white"
+                  transform={`translate(0, ${expression === 'neutral' ? 0 : expression === 'concerned' ? -2 : expression === 'worried' ? -4 : expression === 'scared' ? -6 : -8})`}
+                />
+              </g>
+            )}
             {/* Left eye brow */}
             {expression === 'concerned' && (
               <path
                 d="M 78 105 Q 85 107 92 105"
-                stroke="#1A0804"
+                stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.6)' : '#1A0804'}
                 strokeWidth="1.2"
                 fill="none"
                 strokeLinecap="round"
@@ -390,7 +469,7 @@ export function BunnyCharacter({ bites, onGhostAnimationComplete }: Props) {
             {expression === 'worried' && (
               <path
                 d="M 78 108 Q 85 110 92 108"
-                stroke="#1A0804"
+                stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.6)' : '#1A0804'}
                 strokeWidth="1.5"
                 fill="none"
                 strokeLinecap="round"
@@ -399,7 +478,7 @@ export function BunnyCharacter({ bites, onGhostAnimationComplete }: Props) {
             {expression === 'scared' && (
               <path
                 d="M 76 110 Q 85 113 94 110"
-                stroke="#1A0804"
+                stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.6)' : '#1A0804'}
                 strokeWidth="1.8"
                 fill="none"
                 strokeLinecap="round"
@@ -408,7 +487,7 @@ export function BunnyCharacter({ bites, onGhostAnimationComplete }: Props) {
             {expression === 'terrified' && (
               <path
                 d="M 74 112 Q 85 116 96 112"
-                stroke="#1A0804"
+                stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.6)' : '#1A0804'}
                 strokeWidth="2"
                 fill="none"
                 strokeLinecap="round"
@@ -416,36 +495,32 @@ export function BunnyCharacter({ bites, onGhostAnimationComplete }: Props) {
             )}
 
             {/* Right eye */}
-            <circle cx="115" cy="104" r="9.5" fill="#1A0804" />
-            <circle cx="115" cy="104" r="6.5" fill="#2A1208" />
-            <g mask="url(#rightEyeMask)">
-              {expression === 'neutral' && (
-                <circle cx="113" cy="102" r="3.2" fill="white" />
-              )}
-              {expression === 'concerned' && (
-                <circle cx="113" cy="100" r="3.2" fill="white" />
-              )}
-              {expression === 'worried' && (
-                <circle cx="113" cy="98" r="3.5" fill="white" />
-              )}
-              {expression === 'scared' && (
-                <>
-                  <circle cx="113" cy="96" r="4" fill="white" />
-                  <circle cx="111" cy="94" r="1.5" fill="white" opacity="0.7" />
-                </>
-              )}
-              {expression === 'terrified' && (
-                <>
-                  <circle cx="113" cy="94" r="4.5" fill="white" />
-                  <circle cx="111" cy="92" r="2" fill="white" opacity="0.8" />
-                </>
-              )}
-            </g>
+            <circle
+              cx="115" cy="104" r="9.5"
+              fill={ghostHeadOutline ? 'none' : '#1A0804'}
+              stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.6)' : 'none'}
+              strokeWidth={ghostHeadOutline ? 1.5 : 0}
+            />
+            <circle
+              cx="115" cy="104" r="6.5"
+              fill={ghostHeadOutline ? 'none' : '#2A1208'}
+              stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.5)' : 'none'}
+              strokeWidth={ghostHeadOutline ? 1 : 0}
+            />
+            {!ghostHeadOutline && (
+              <g mask="url(#rightEyeMask)">
+                <circle
+                  cx="113" cy="102" r="2.8"
+                  fill="white"
+                  transform={`translate(0, ${expression === 'neutral' ? 0 : expression === 'concerned' ? -2 : expression === 'worried' ? -4 : expression === 'scared' ? -6 : -8})`}
+                />
+              </g>
+            )}
             {/* Right eye brow */}
             {expression === 'concerned' && (
               <path
                 d="M 108 105 Q 115 107 122 105"
-                stroke="#1A0804"
+                stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.6)' : '#1A0804'}
                 strokeWidth="1.2"
                 fill="none"
                 strokeLinecap="round"
@@ -454,7 +529,7 @@ export function BunnyCharacter({ bites, onGhostAnimationComplete }: Props) {
             {expression === 'worried' && (
               <path
                 d="M 108 108 Q 115 110 122 108"
-                stroke="#1A0804"
+                stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.6)' : '#1A0804'}
                 strokeWidth="1.5"
                 fill="none"
                 strokeLinecap="round"
@@ -463,7 +538,7 @@ export function BunnyCharacter({ bites, onGhostAnimationComplete }: Props) {
             {expression === 'scared' && (
               <path
                 d="M 106 110 Q 115 113 124 110"
-                stroke="#1A0804"
+                stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.6)' : '#1A0804'}
                 strokeWidth="1.8"
                 fill="none"
                 strokeLinecap="round"
@@ -472,7 +547,7 @@ export function BunnyCharacter({ bites, onGhostAnimationComplete }: Props) {
             {expression === 'terrified' && (
               <path
                 d="M 104 112 Q 115 116 126 112"
-                stroke="#1A0804"
+                stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.6)' : '#1A0804'}
                 strokeWidth="2"
                 fill="none"
                 strokeLinecap="round"
@@ -480,14 +555,21 @@ export function BunnyCharacter({ bites, onGhostAnimationComplete }: Props) {
             )}
 
             {/* NOSE */}
-            <ellipse cx="100" cy="117" rx="4.5" ry="3.5" fill="#C05870" />
-            <ellipse cx="99" cy="116" rx="1.5" ry="1" fill="white" opacity="0.45" />
+            <ellipse
+              cx="100" cy="117" rx="4.5" ry="3.5"
+              fill={ghostHeadOutline ? 'none' : '#C05870'}
+              stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.6)' : 'none'}
+              strokeWidth={ghostHeadOutline ? 1 : 0}
+            />
+            {!ghostHeadOutline && (
+              <ellipse cx="99" cy="116" rx="1.5" ry="1" fill="white" opacity="0.45" />
+            )}
 
             {/* MOUTH */}
             {expression === 'neutral' && (
               <path
                 d="M 94,123 Q 100,131 106,123"
-                stroke="#8B3840"
+                stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.6)' : '#8B3840'}
                 strokeWidth="2"
                 fill="none"
                 strokeLinecap="round"
@@ -496,7 +578,7 @@ export function BunnyCharacter({ bites, onGhostAnimationComplete }: Props) {
             {expression === 'concerned' && (
               <path
                 d="M 94,126 Q 100,128 106,126"
-                stroke="#8B3840"
+                stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.6)' : '#8B3840'}
                 strokeWidth="2"
                 fill="none"
                 strokeLinecap="round"
@@ -505,7 +587,7 @@ export function BunnyCharacter({ bites, onGhostAnimationComplete }: Props) {
             {expression === 'worried' && (
               <path
                 d="M 94,128 Q 100,125 106,128"
-                stroke="#8B3840"
+                stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.6)' : '#8B3840'}
                 strokeWidth="2"
                 fill="none"
                 strokeLinecap="round"
@@ -513,34 +595,52 @@ export function BunnyCharacter({ bites, onGhostAnimationComplete }: Props) {
             )}
             {expression === 'scared' && (
               <>
-                <ellipse cx="100" cy="130" rx="6" ry="4" fill="#8B3840" />
-                <ellipse cx="100" cy="129" rx="4" ry="2.5" fill="#3D1A08" />
+                <ellipse
+                  cx="100" cy="130" rx="6" ry="4"
+                  fill={ghostHeadOutline ? 'none' : '#8B3840'}
+                  stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.6)' : 'none'}
+                  strokeWidth={ghostHeadOutline ? 1 : 0}
+                />
+                {!ghostHeadOutline && (
+                  <ellipse cx="100" cy="129" rx="4" ry="2.5" fill="#3D1A08" />
+                )}
               </>
             )}
             {expression === 'terrified' && (
               <>
-                <ellipse cx="100" cy="132" rx="8" ry="5" fill="#8B3840" />
-                <ellipse cx="100" cy="131" rx="5.5" ry="3.5" fill="#3D1A08" />
+                <ellipse
+                  cx="100" cy="132" rx="8" ry="5"
+                  fill={ghostHeadOutline ? 'none' : '#8B3840'}
+                  stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.6)' : 'none'}
+                  strokeWidth={ghostHeadOutline ? 1 : 0}
+                />
+                {!ghostHeadOutline && (
+                  <ellipse cx="100" cy="131" rx="5.5" ry="3.5" fill="#3D1A08" />
+                )}
               </>
             )}
 
             {/* CHEEK BLUSHES - fade as fear increases */}
-            <circle
-              cx="75" cy="116" r="13"
-              fill="#FF6080"
-              opacity={expression === 'neutral' ? '0.2' : expression === 'concerned' ? '0.15' : expression === 'worried' ? '0.1' : '0.05'}
-            />
-            <circle
-              cx="125" cy="116" r="13"
-              fill="#FF6080"
-              opacity={expression === 'neutral' ? '0.2' : expression === 'concerned' ? '0.15' : expression === 'worried' ? '0.1' : '0.05'}
-            />
+            {!ghostHeadOutline && (
+              <>
+                <circle
+                  cx="75" cy="116" r="13"
+                  fill="#FF6080"
+                  opacity={expression === 'neutral' ? '0.2' : expression === 'concerned' ? '0.15' : expression === 'worried' ? '0.1' : '0.05'}
+                />
+                <circle
+                  cx="125" cy="116" r="13"
+                  fill="#FF6080"
+                  opacity={expression === 'neutral' ? '0.2' : expression === 'concerned' ? '0.15' : expression === 'worried' ? '0.1' : '0.05'}
+                />
+              </>
+            )}
 
             {/* WHISKERS */}
-            <line x1="70" y1="114" x2="90" y2="117" stroke="#3D1A08" strokeWidth="0.8" opacity="0.4" />
-            <line x1="70" y1="119" x2="90" y2="119" stroke="#3D1A08" strokeWidth="0.8" opacity="0.4" />
-            <line x1="110" y1="117" x2="130" y2="114" stroke="#3D1A08" strokeWidth="0.8" opacity="0.4" />
-            <line x1="110" y1="119" x2="130" y2="119" stroke="#3D1A08" strokeWidth="0.8" opacity="0.4" />
+            <line x1="70" y1="114" x2="90" y2="117" stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.4)' : '#3D1A08'} strokeWidth="0.8" opacity="0.4" />
+            <line x1="70" y1="119" x2="90" y2="119" stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.4)' : '#3D1A08'} strokeWidth="0.8" opacity="0.4" />
+            <line x1="110" y1="117" x2="130" y2="114" stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.4)' : '#3D1A08'} strokeWidth="0.8" opacity="0.4" />
+            <line x1="110" y1="119" x2="130" y2="119" stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.4)' : '#3D1A08'} strokeWidth="0.8" opacity="0.4" />
           </g>
         )}
 
