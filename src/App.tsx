@@ -16,8 +16,6 @@ export default function App() {
   useEffect(() => {
     if (state.status === 'won') {
       setShowWinAnimation(true);
-    } else if (state.status === 'lost') {
-      setShowResult(true);
     }
   }, [state.status]);
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 interface Props {
   bites: number;
@@ -41,9 +41,13 @@ function BiteMark({ x1, y1, x2, y2 }: { x1: number; y1: number; x2: number; y2: 
 
 export function BunnyCharacter({ bites, won, onGhostAnimationComplete, onWinAnimationComplete }: Props) {
   const [animating, setAnimating] = useState(false);
-  const [ghostHeadOutline, setGhostHeadOutline] = useState(false);
   const [ghostPartsFading, setGhostPartsFading] = useState(false);
   const [winAnimating, setWinAnimating] = useState(false);
+
+  const onGhostAnimationCompleteRef = useRef(onGhostAnimationComplete);
+  const onWinAnimationCompleteRef = useRef(onWinAnimationComplete);
+  useEffect(() => { onGhostAnimationCompleteRef.current = onGhostAnimationComplete; }, [onGhostAnimationComplete]);
+  useEffect(() => { onWinAnimationCompleteRef.current = onWinAnimationComplete; }, [onWinAnimationComplete]);
 
   useEffect(() => {
     if (bites > 0) {
@@ -54,30 +58,39 @@ export function BunnyCharacter({ bites, won, onGhostAnimationComplete, onWinAnim
   }, [bites]);
 
   useEffect(() => {
-    if (bites === 8) {
-      setGhostHeadOutline(true);
-      const t = setTimeout(() => {
-        setGhostPartsFading(true);
-        if (onGhostAnimationComplete) {
-          setTimeout(onGhostAnimationComplete, 800);
-        }
-      }, 800);
-      return () => clearTimeout(t);
+    if (bites < 8) {
+      setGhostPartsFading(false);
     }
-  }, [bites, onGhostAnimationComplete]);
+  }, [bites]);
 
+  // Loss sequence: ghost outline immediately (bites>=8) -> 1.2s pause -> float away -> 0.5s pause -> callback
+  useEffect(() => {
+    if (bites === 8) {
+      const timers: ReturnType<typeof setTimeout>[] = [];
+      timers.push(setTimeout(() => setGhostPartsFading(true), 1200));
+      timers.push(setTimeout(() => {
+        if (onGhostAnimationCompleteRef.current) {
+          onGhostAnimationCompleteRef.current();
+        }
+      }, 2500));
+      return () => { timers.forEach(clearTimeout); };
+    }
+  }, [bites]);
+
+  // Win sequence: 1.2s pause -> dance (1.2s) -> 0.5s pause -> callback
   useEffect(() => {
     if (won) {
-      setWinAnimating(true);
-      const t = setTimeout(() => {
+      const timers: ReturnType<typeof setTimeout>[] = [];
+      timers.push(setTimeout(() => setWinAnimating(true), 1200));
+      timers.push(setTimeout(() => {
         setWinAnimating(false);
-        if (onWinAnimationComplete) {
-          onWinAnimationComplete();
+        if (onWinAnimationCompleteRef.current) {
+          onWinAnimationCompleteRef.current();
         }
-      }, 1200);
-      return () => clearTimeout(t);
+      }, 2900));
+      return () => { timers.forEach(clearTimeout); };
     }
-  }, [won, onWinAnimationComplete]);
+  }, [won]);
 
   const showEarLeft = bites < 1;
   const showEarRight = bites < 2;
@@ -87,6 +100,7 @@ export function BunnyCharacter({ bites, won, onGhostAnimationComplete, onWinAnim
   const showLegLeft = bites < 6;
   const showBody = bites < 7;
   const showHead = bites < 8;
+  const ghostHeadOutline = bites === 8;
 
   // Expression stages: 0=neutral, 1-2=concerned, 3-4=worried, 5-6=scared, 7=terrified
   const getExpressionStage = (): 'neutral' | 'concerned' | 'worried' | 'scared' | 'terrified' | 'happy' => {
@@ -241,7 +255,7 @@ export function BunnyCharacter({ bites, won, onGhostAnimationComplete, onWinAnim
             )}
 
             {/* Ghost head - included in float animation */}
-            {ghostPartsFading && ghostHeadOutline && (
+            {ghostPartsFading && bites === 8 && (
               <g style={{ opacity: 0.5 }}>
                 <circle
                   cx="100" cy="108" r="44"
