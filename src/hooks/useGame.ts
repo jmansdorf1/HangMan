@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { playChomp } from '../lib/audio';
 import { fallbackWords } from '../data/words';
@@ -10,7 +10,7 @@ function pickRandom<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-async function fetchRandomWord(category?: string): Promise<WordEntry> {
+async function fetchRandomWord(category?: string, previousWord?: string): Promise<WordEntry> {
   try {
     let query = supabase.from('words').select('id, word, category, difficulty');
     if (category) {
@@ -19,12 +19,15 @@ async function fetchRandomWord(category?: string): Promise<WordEntry> {
     const { data, error } = await query;
     if (error || !data || data.length === 0) {
       const filtered = category ? fallbackWords.filter(w => w.category === category) : fallbackWords;
-      return pickRandom(filtered.length > 0 ? filtered : fallbackWords);
+      const eligible = filtered.filter(w => w.word.toUpperCase() !== previousWord?.toUpperCase());
+      return pickRandom(eligible.length > 0 ? eligible : filtered.length > 0 ? filtered : fallbackWords);
     }
-    return pickRandom(data as WordEntry[]);
+    const eligible = (data as WordEntry[]).filter(w => w.word.toUpperCase() !== previousWord?.toUpperCase());
+    return pickRandom(eligible.length > 0 ? eligible : data as WordEntry[]);
   } catch {
     const filtered = category ? fallbackWords.filter(w => w.category === category) : fallbackWords;
-    return pickRandom(filtered.length > 0 ? filtered : fallbackWords);
+    const eligible = filtered.filter(w => w.word.toUpperCase() !== previousWord?.toUpperCase());
+    return pickRandom(eligible.length > 0 ? eligible : filtered.length > 0 ? filtered : fallbackWords);
   }
 }
 
@@ -43,9 +46,12 @@ export function useGame(selectedCategory?: string) {
     return saved ? parseInt(saved, 10) : 0;
   });
 
+  const prevWordRef = useRef<string | undefined>(undefined);
+
   const startNewGame = useCallback(async () => {
     setState(prev => ({ ...prev, isLoading: true }));
-    const entry = await fetchRandomWord(selectedCategory);
+    const entry = await fetchRandomWord(selectedCategory, prevWordRef.current);
+    prevWordRef.current = entry.word.toUpperCase();
     setState({
       word: entry.word.toUpperCase(),
       category: entry.category,
