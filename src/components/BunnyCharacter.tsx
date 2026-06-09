@@ -102,10 +102,10 @@ export function BunnyCharacter({ bites, onGhostAnimationComplete }: Props) {
       >
         <defs>
           <mask id="leftEyeMask">
-            <rect x="60" y="80" width="50" height="50" fill="white" />
+            <circle cx="85" cy="104" r="9.5" fill="white" />
           </mask>
           <mask id="rightEyeMask">
-            <rect x="90" y="80" width="50" height="50" fill="white" />
+            <circle cx="115" cy="104" r="9.5" fill="white" />
           </mask>
 
           <radialGradient id="chocMain" cx="38%" cy="30%" r="65%">
@@ -452,7 +452,7 @@ export function BunnyCharacter({ bites, onGhostAnimationComplete }: Props) {
                 <circle
                   cx="83" cy="102" r="2.8"
                   fill="white"
-                  transform={`translate(0, ${expression === 'neutral' ? 0 : expression === 'concerned' ? -2 : expression === 'worried' ? -4 : expression === 'scared' ? -6 : -8})`}
+                  transform={`translate(0, ${expression === 'neutral' ? 0 : expression === 'concerned' ? -1.5 : expression === 'worried' ? -2.5 : expression === 'scared' ? -3.5 : -4})`}
                 />
               </g>
             )}
@@ -512,7 +512,7 @@ export function BunnyCharacter({ bites, onGhostAnimationComplete }: Props) {
                 <circle
                   cx="113" cy="102" r="2.8"
                   fill="white"
-                  transform={`translate(0, ${expression === 'neutral' ? 0 : expression === 'concerned' ? -2 : expression === 'worried' ? -4 : expression === 'scared' ? -6 : -8})`}
+                  transform={`translate(0, ${expression === 'neutral' ? 0 : expression === 'concerned' ? -1.5 : expression === 'worried' ? -2.5 : expression === 'scared' ? -3.5 : -4})`}
                 />
               </g>
             )}
