@@ -10,16 +10,25 @@ const CATEGORIES = ['Animals', 'Food', 'Space', 'Nature', 'Sports', 'Colors'];
 export default function App() {
   const [selectedCategory, setSelectedCategory] = useState<string>(CATEGORIES[0]);
   const [showResult, setShowResult] = useState(false);
+  const [showWinAnimation, setShowWinAnimation] = useState(false);
   const { state, streak, correctLetters, wrongLetters, guessLetter, startNewGame } = useGame(selectedCategory);
 
   useEffect(() => {
-    if (state.status !== 'playing') {
+    if (state.status === 'won') {
+      setShowWinAnimation(true);
+    } else if (state.status === 'lost') {
       setShowResult(true);
     }
   }, [state.status]);
 
+  const handleWinAnimationComplete = () => {
+    setShowWinAnimation(false);
+    setShowResult(true);
+  };
+
   const handlePlayAgain = () => {
     setShowResult(false);
+    setShowWinAnimation(false);
     startNewGame();
   };
 
@@ -134,7 +143,9 @@ export default function App() {
             <>
               <BunnyCharacter
                 bites={state.wrongGuesses}
+                won={state.status === 'won'}
                 onGhostAnimationComplete={state.status === 'lost' ? () => setShowResult(true) : undefined}
+                onWinAnimationComplete={handleWinAnimationComplete}
               />
 
               {/* Result overlay */}
