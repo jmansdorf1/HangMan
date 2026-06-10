@@ -50,11 +50,8 @@ export default function App() {
         <div className="flex items-center justify-between mb-3">
           <div>
             <h1 className="text-2xl font-extrabold text-amber-900 leading-tight tracking-tight">
-              Choco Bunny
+              Choco Bunny Hangman
             </h1>
-            <p className="text-xs text-amber-600 font-semibold uppercase tracking-wider">
-              Hangman
-            </p>
           </div>
           {streak > 0 && (
             <div className="bg-amber-800 text-amber-100 rounded-2xl px-4 py-1.5 flex flex-col items-center shadow-md">
