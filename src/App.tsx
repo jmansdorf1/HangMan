@@ -90,38 +90,28 @@ export default function App() {
           className="bg-white bg-opacity-80 rounded-3xl shadow-xl p-5 flex flex-col items-center gap-3"
           style={{ backdropFilter: 'blur(8px)' }}
         >
-          {/* Progress bar */}
-          <div className="w-full flex items-center gap-2">
-            <div className="flex-1 h-2 bg-amber-100 rounded-full overflow-hidden">
-              <div
-                className="h-full rounded-full transition-all duration-500"
-                style={{
-                  width: `${(state.wrongGuesses / MAX_WRONG) * 100}%`,
-                  background:
-                    state.wrongGuesses < 4
-                      ? '#10B981'
-                      : state.wrongGuesses < 7
-                      ? '#F59E0B'
-                      : '#EF4444',
-                }}
-              />
-            </div>
-            <span className="text-xs font-bold text-amber-700 tabular-nums whitespace-nowrap">
-              {state.wrongGuesses}/{MAX_WRONG}
-            </span>
-          </div>
-
-          {/* Bite dots */}
+          {/* Wrong guess indicators */}
           <div className="flex gap-1.5">
             {Array.from({ length: MAX_WRONG }).map((_, i) => (
-              <div
-                key={i}
-                className="w-2.5 h-2.5 rounded-full transition-all duration-300"
-                style={{
-                  background: i < state.wrongGuesses ? '#EF4444' : '#FDE8D8',
-                  transform: i === state.wrongGuesses - 1 ? 'scale(1.35)' : 'scale(1)',
-                }}
-              />
+              i < state.wrongGuesses ? (
+                <span
+                  key={i}
+                  className="text-red-500 font-bold text-sm transition-all duration-300"
+                  style={{
+                    transform: i === state.wrongGuesses - 1 ? 'scale(1.35)' : 'scale(1)',
+                  }}
+                >
+                  ✕
+                </span>
+              ) : (
+                <div
+                  key={i}
+                  className="w-2.5 h-2.5 rounded-full transition-all duration-300"
+                  style={{
+                    background: '#FDE8D8',
+                  }}
+                />
+              )
             ))}
           </div>
 
