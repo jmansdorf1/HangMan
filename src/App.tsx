@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useGame } from './hooks/useGame';
 import { BunnyCharacter } from './components/BunnyCharacter';
 import { WordDisplay } from './components/WordDisplay';
@@ -12,6 +12,26 @@ export default function App() {
   const [showResult, setShowResult] = useState(false);
   const [showWinAnimation, setShowWinAnimation] = useState(false);
   const { state, streak, correctLetters, wrongLetters, guessLetter, startNewGame } = useGame(selectedCategory);
+
+  const gameRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+
+  const updateScale = useCallback(() => {
+    if (!gameRef.current) return;
+    const contentHeight = gameRef.current.scrollHeight;
+    const vh = window.innerHeight;
+    const vw = window.innerWidth;
+    const heightScale = vh / contentHeight;
+    const widthScale = vw / 384;
+    const newScale = Math.min(1, heightScale, widthScale);
+    setScale(newScale);
+  }, []);
+
+  useEffect(() => {
+    updateScale();
+    window.addEventListener('resize', updateScale);
+    return () => window.removeEventListener('resize', updateScale);
+  }, [updateScale, state.isLoading]);
 
   useEffect(() => {
     if (state.status === 'won') {
@@ -39,14 +59,23 @@ export default function App() {
 
   return (
     <div
-      className="min-h-screen flex flex-col items-center"
+      className="h-screen w-screen flex items-center justify-center overflow-hidden"
       style={{
         background: 'linear-gradient(160deg, #FFF5EE 0%, #FFDFC8 60%, #FFD0B0 100%)',
         fontFamily: "'Nunito', 'Segoe UI', system-ui, sans-serif",
       }}
     >
-      {/* Header */}
-      <header className="w-full max-w-sm pt-8 pb-2 px-5">
+      <div
+        ref={gameRef}
+        style={{
+          transform: scale < 1 ? `scale(${scale})` : undefined,
+          transformOrigin: 'center top',
+          width: '384px',
+          maxWidth: '100vw',
+        }}
+      >
+        {/* Header */}
+        <header className="pt-5 pb-1 px-5">
         <div className="flex items-center justify-between mb-3">
           <div>
             <h1 className="text-2xl font-extrabold text-amber-900 leading-tight tracking-tight">
@@ -82,12 +111,12 @@ export default function App() {
         </div>
       </header>
 
-      {/* Main */}
-      <main className="w-full max-w-sm flex-1 flex flex-col gap-4 px-4 pb-8">
+        {/* Main */}
+        <main className="flex flex-col gap-3 px-4 pb-4">
 
         {/* Bunny card */}
         <div
-          className="bg-white bg-opacity-80 rounded-3xl shadow-xl p-5 flex flex-col items-center gap-3"
+          className="bg-white bg-opacity-80 rounded-3xl shadow-xl p-4 flex flex-col items-center gap-2"
           style={{ backdropFilter: 'blur(8px)' }}
         >
           {/* Wrong guess indicators */}
@@ -117,7 +146,7 @@ export default function App() {
 
           {/* Bunny */}
           {state.isLoading ? (
-            <div className="flex flex-col items-center gap-3 py-12">
+            <div className="flex flex-col items-center gap-3 py-8">
               <div
                 className="w-10 h-10 rounded-full border-4 border-amber-300 border-t-amber-700"
                 style={{ animation: 'spin 0.8s linear infinite' }}
@@ -164,7 +193,7 @@ export default function App() {
 
         {/* Word display */}
         {!state.isLoading && (
-          <div className="bg-white bg-opacity-70 rounded-3xl shadow-md p-5">
+          <div className="bg-white bg-opacity-70 rounded-3xl shadow-md p-4">
             <WordDisplay word={state.word} guessedLetters={state.guessedLetters} />
             <div className="mt-3 flex flex-wrap gap-1.5 justify-center min-h-6">
               {wrongLetters.map(l => (
@@ -182,7 +211,7 @@ export default function App() {
         {/* Keyboard */}
         {!state.isLoading && (
           <div
-            className="bg-white bg-opacity-70 rounded-3xl shadow-md p-4"
+            className="bg-white bg-opacity-70 rounded-3xl shadow-md p-3"
             style={{ backdropFilter: 'blur(6px)' }}
           >
             <LetterKeyboard
@@ -194,6 +223,7 @@ export default function App() {
           </div>
         )}
       </main>
+      </div>
     </div>
   );
 }

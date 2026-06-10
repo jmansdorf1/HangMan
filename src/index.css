@@ -8,6 +8,12 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
 @keyframes bunnyShake {
   0%   { transform: translateX(0) rotate(0deg); }
   15%  { transform: translateX(-6px) rotate(-3deg); }
