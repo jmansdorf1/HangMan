@@ -112,6 +112,31 @@ export default function App() {
             ))}
           </select>
         </div>
+
+        {/* Result message */}
+        {showResult && (state.status === 'won' || state.status === 'lost') && (
+          <div className="mt-3 text-center">
+            {state.status === 'won' ? (
+              <>
+                <p className="text-2xl font-extrabold text-amber-900 mb-1">You Won!</p>
+                <p className="text-sm text-amber-700 mb-1">The word was:</p>
+                <p className="text-lg font-bold text-amber-800 mb-3 tracking-widest">{state.word}</p>
+              </>
+            ) : (
+              <>
+                <p className="text-2xl font-extrabold text-rose-900 mb-1">You Lost!</p>
+                <p className="text-sm text-rose-700 mb-1">The word was:</p>
+                <p className="text-lg font-bold text-rose-800 mb-3 tracking-widest">{state.word}</p>
+              </>
+            )}
+            <button
+              onClick={handlePlayAgain}
+              className="bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 active:scale-95 text-white font-bold py-2 px-6 rounded-xl transition-all duration-150 shadow-md"
+            >
+              Play Again
+            </button>
+          </div>
+        )}
       </header>
 
         {/* Main */}
@@ -166,31 +191,6 @@ export default function App() {
                 onGhostAnimationComplete={state.status === 'lost' ? () => setShowResult(true) : undefined}
                 onWinAnimationComplete={handleWinAnimationComplete}
               />
-
-              {/* Result overlay */}
-              {showResult && (state.status === 'won' || state.status === 'lost') && (
-                <div className="bg-white bg-opacity-90 rounded-2xl p-5 text-center backdrop-blur-sm">
-                  {state.status === 'won' ? (
-                    <>
-                      <p className="text-2xl font-extrabold text-amber-900 mb-2">You Won!</p>
-                      <p className="text-sm text-amber-700 mb-3">The word was:</p>
-                      <p className="text-lg font-bold text-amber-800 mb-4 tracking-widest">{state.word}</p>
-                    </>
-                  ) : (
-                    <>
-                      <p className="text-2xl font-extrabold text-rose-900 mb-2">You Lost!</p>
-                      <p className="text-sm text-rose-700 mb-3">The word was:</p>
-                      <p className="text-lg font-bold text-rose-800 mb-4 tracking-widest">{state.word}</p>
-                    </>
-                  )}
-                  <button
-                    onClick={handlePlayAgain}
-                    className="bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 active:scale-95 text-white font-bold py-2 px-6 rounded-xl transition-all duration-150 shadow-md"
-                  >
-                    Play Again
-                  </button>
-                </div>
-              )}
             </>
           )}
 
