@@ -126,15 +126,17 @@ export default function App() {
           <div className="flex gap-1.5">
             {Array.from({ length: MAX_WRONG }).map((_, i) => (
               i < state.wrongGuesses ? (
-                <span
+                <div
                   key={i}
-                  className="text-red-500 font-bold text-sm transition-all duration-300"
+                  className="w-2.5 h-2.5 flex items-center justify-center transition-all duration-300"
                   style={{
                     transform: i === state.wrongGuesses - 1 ? 'scale(1.35)' : 'scale(1)',
                   }}
                 >
-                  ✕
-                </span>
+                  <span className="text-red-500 font-bold leading-none" style={{ fontSize: '8px' }}>
+                    ✕
+                  </span>
+                </div>
               ) : (
                 <div
                   key={i}
