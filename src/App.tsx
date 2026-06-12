@@ -21,9 +21,11 @@ export default function App() {
     const contentHeight = gameRef.current.scrollHeight;
     const vh = window.innerHeight;
     const vw = window.innerWidth;
+    const isMobile = vw < 768;
+    const baseScale = isMobile ? 0.85 : 1;
     const heightScale = vh / contentHeight;
     const widthScale = vw / 384;
-    const newScale = Math.min(1, heightScale, widthScale);
+    const newScale = Math.min(baseScale, heightScale, widthScale);
     setScale(newScale);
   }, []);
 
@@ -67,6 +69,7 @@ export default function App() {
     >
       <div
         ref={gameRef}
+        className="game-container"
         style={{
           transform: scale < 1 ? `scale(${scale})` : undefined,
           transformOrigin: 'center top',
@@ -75,7 +78,7 @@ export default function App() {
         }}
       >
         {/* Header */}
-        <header className="pt-5 pb-1 px-5">
+        <header className="game-header pt-5 pb-1 px-5">
         <div className="flex items-center justify-between mb-3">
           <div>
             <h1 className="text-2xl font-extrabold text-amber-900 leading-tight tracking-tight">
@@ -112,11 +115,11 @@ export default function App() {
       </header>
 
         {/* Main */}
-        <main className="flex flex-col gap-3 px-4 pb-4">
+        <main className="game-main flex flex-col gap-3 px-4 pb-4">
 
         {/* Bunny card */}
         <div
-          className="bg-white bg-opacity-80 rounded-3xl shadow-xl p-4 flex flex-col items-center gap-2"
+          className="game-bunny-card bg-white bg-opacity-80 rounded-3xl shadow-xl p-4 flex flex-col items-center gap-2"
           style={{ backdropFilter: 'blur(8px)' }}
         >
           {/* Wrong guess indicators */}
@@ -193,7 +196,7 @@ export default function App() {
 
         {/* Word display */}
         {!state.isLoading && (
-          <div className="bg-white bg-opacity-70 rounded-3xl shadow-md p-4">
+          <div className="game-word-card bg-white bg-opacity-70 rounded-3xl shadow-md p-4">
             <WordDisplay word={state.word} guessedLetters={state.guessedLetters} />
             <div className="mt-3 flex flex-wrap gap-1.5 justify-center min-h-6">
               {wrongLetters.map(l => (
@@ -211,7 +214,7 @@ export default function App() {
         {/* Keyboard */}
         {!state.isLoading && (
           <div
-            className="bg-white bg-opacity-70 rounded-3xl shadow-md p-3"
+            className="game-keyboard-card bg-white bg-opacity-70 rounded-3xl shadow-md p-3"
             style={{ backdropFilter: 'blur(6px)' }}
           >
             <LetterKeyboard
