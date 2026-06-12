@@ -71,23 +71,22 @@ html, body, #root {
   }
 }
 
-@keyframes happyDance {
-  0% {
-    transform: translateY(0px) rotate(0deg);
-  }
-  20% {
-    transform: translateY(-6px) rotate(8deg);
-  }
-  40% {
-    transform: translateY(0px) rotate(-5deg);
-  }
-  60% {
-    transform: translateY(-5px) rotate(6deg);
-  }
-  80% {
-    transform: translateY(0px) rotate(-3deg);
-  }
-  100% {
-    transform: translateY(0px) rotate(0deg);
-  }
+@keyframes bunnyHop {
+  0%    { transform: translateY(0) scaleX(1) scaleY(1); }
+  4%    { transform: translateY(0) scaleX(1.12) scaleY(0.88); }
+  10%   { transform: translateY(-18px) scaleX(0.92) scaleY(1.08); }
+  16%   { transform: translateY(0) scaleX(1.08) scaleY(0.92); }
+  20%   { transform: translateY(0) scaleX(1) scaleY(1); }
+
+  24%   { transform: translateY(0) scaleX(1.12) scaleY(0.88); }
+  30%   { transform: translateY(-18px) scaleX(0.92) scaleY(1.08); }
+  36%   { transform: translateY(0) scaleX(1.08) scaleY(0.92); }
+  40%   { transform: translateY(0) scaleX(1) scaleY(1); }
+
+  44%   { transform: translateY(0) scaleX(1.12) scaleY(0.88); }
+  50%   { transform: translateY(-18px) scaleX(0.92) scaleY(1.08); }
+  56%   { transform: translateY(0) scaleX(1.08) scaleY(0.92); }
+  60%   { transform: translateY(0) scaleX(1) scaleY(1); }
+
+  100%  { transform: translateY(0) scaleX(1) scaleY(1); }
 }

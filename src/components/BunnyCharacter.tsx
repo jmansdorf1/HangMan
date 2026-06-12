@@ -77,7 +77,7 @@ export function BunnyCharacter({ bites, won, onGhostAnimationComplete, onWinAnim
     }
   }, [bites]);
 
-  // Win sequence: 1.2s pause -> dance (1.2s) -> 0.5s pause -> callback
+  // Win sequence: 1.2s pause -> hop (1.8s) -> 0.5s pause -> callback
   useEffect(() => {
     if (won) {
       const timers: ReturnType<typeof setTimeout>[] = [];
@@ -87,7 +87,7 @@ export function BunnyCharacter({ bites, won, onGhostAnimationComplete, onWinAnim
         if (onWinAnimationCompleteRef.current) {
           onWinAnimationCompleteRef.current();
         }
-      }, 2900));
+      }, 3500));
       return () => { timers.forEach(clearTimeout); };
     }
   }, [won]);
@@ -179,7 +179,7 @@ export function BunnyCharacter({ bites, won, onGhostAnimationComplete, onWinAnim
         {/* Character group — all visible parts animate together on win */}
         <g
           style={{
-            animation: winAnimating ? 'happyDance 1.2s ease-in-out' : 'none',
+            animation: winAnimating ? 'bunnyHop 1.8s ease-in-out' : 'none',
           }}
         >
           {/* Ghost container - wraps all visible body parts and animates on loss */}
