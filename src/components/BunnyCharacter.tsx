@@ -7,6 +7,23 @@ interface Props {
   onWinAnimationComplete?: () => void;
 }
 
+function CrumbParticle({ x, y, delay }: { x: number; y: number; delay: number }) {
+  const rotation = Math.random() * 360 + 'deg';
+  return (
+    <circle
+      cx={x}
+      cy={y}
+      r={Math.random() * 2 + 1}
+      fill="#6B3A1A"
+      style={{
+        animation: `crumbFall 0.8s ease-out forwards`,
+        animationDelay: `${delay}ms`,
+        '--crumb-rotate': rotation,
+      } as React.CSSProperties}
+    />
+  );
+}
+
 function BiteMark({ x1, y1, x2, y2 }: { x1: number; y1: number; x2: number; y2: number }) {
   const dx = x2 - x1;
   const dy = y2 - y1;
@@ -77,7 +94,7 @@ export function BunnyCharacter({ bites, won, onGhostAnimationComplete, onWinAnim
     }
   }, [bites]);
 
-  // Win sequence: 1.2s pause -> hop (1.8s) -> 0.5s pause -> callback
+  // Win sequence: 1.2s pause -> wiggle (1.5s) -> 0.5s pause -> callback
   useEffect(() => {
     if (won) {
       const timers: ReturnType<typeof setTimeout>[] = [];
@@ -87,7 +104,7 @@ export function BunnyCharacter({ bites, won, onGhostAnimationComplete, onWinAnim
         if (onWinAnimationCompleteRef.current) {
           onWinAnimationCompleteRef.current();
         }
-      }, 3500));
+      }, 3200));
       return () => { timers.forEach(clearTimeout); };
     }
   }, [won]);
@@ -179,7 +196,7 @@ export function BunnyCharacter({ bites, won, onGhostAnimationComplete, onWinAnim
         {/* Character group — all visible parts animate together on win */}
         <g
           style={{
-            animation: winAnimating ? 'bunnyHop 1.8s ease-in-out' : 'none',
+            animation: winAnimating ? 'bunnyWiggle 1.5s ease-in-out' : 'none',
           }}
         >
           {/* Ghost container - wraps all visible body parts and animates on loss */}
@@ -713,6 +730,22 @@ export function BunnyCharacter({ bites, won, onGhostAnimationComplete, onWinAnim
           {/* Bite mark at neck */}
           {bites === 7 && showHead && (
             <BiteMark x1="65" y1="148" x2="135" y2="148" />
+          )}
+
+          {/* Chocolate crumb particles during win wiggle */}
+          {winAnimating && (
+            <g style={{ pointerEvents: 'none' }}>
+              <CrumbParticle x={70} y={100} delay={0} />
+              <CrumbParticle x={130} y={95} delay={100} />
+              <CrumbParticle x={85} y={85} delay={200} />
+              <CrumbParticle x={115} y={90} delay={300} />
+              <CrumbParticle x={100} y={80} delay={400} />
+              <CrumbParticle x={75} y={110} delay={150} />
+              <CrumbParticle x={125} y={105} delay={250} />
+              <CrumbParticle x={90} y={70} delay={500} />
+              <CrumbParticle x={110} y={75} delay={350} />
+              <CrumbParticle x={80} y={120} delay={450} />
+            </g>
           )}
         </g>
       </svg>
