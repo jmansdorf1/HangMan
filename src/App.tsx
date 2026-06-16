@@ -117,21 +117,17 @@ export default function App() {
         {showResult && (state.status === 'won' || state.status === 'lost') && (
           <div className="mt-3 text-center">
             {state.status === 'won' ? (
-              <>
-                <p className="text-2xl font-extrabold text-amber-900 mb-1">You Won!</p>
-                <p className="text-sm text-amber-700 mb-1">The word was:</p>
-                <p className="text-lg font-bold text-amber-800 mb-3 tracking-widest">{state.word}</p>
-              </>
+              <p className="text-2xl font-extrabold text-amber-900 mb-4">You Won!</p>
             ) : (
               <>
                 <p className="text-2xl font-extrabold text-rose-900 mb-1">You Lost!</p>
                 <p className="text-sm text-rose-700 mb-1">The word was:</p>
-                <p className="text-lg font-bold text-rose-800 mb-3 tracking-widest">{state.word}</p>
+                <p className="text-lg font-bold text-rose-800 mb-4 tracking-widest">{state.word}</p>
               </>
             )}
             <button
               onClick={handlePlayAgain}
-              className="bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 active:scale-95 text-white font-bold py-2 px-6 rounded-xl transition-all duration-150 shadow-md"
+              className="bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 active:scale-95 text-white font-bold py-2 px-6 rounded-xl transition-all duration-150 shadow-md mb-4"
             >
               Play Again
             </button>
@@ -144,7 +140,7 @@ export default function App() {
 
         {/* Bunny card */}
         <div
-          className="game-bunny-card bg-white bg-opacity-80 rounded-3xl shadow-xl p-4 flex flex-col items-center gap-2"
+          className="game-bunny-card bg-white bg-opacity-80 rounded-3xl p-4 flex flex-col items-center gap-2"
           style={{ backdropFilter: 'blur(8px)' }}
         >
           {/* Wrong guess indicators */}
@@ -198,7 +194,7 @@ export default function App() {
 
         {/* Word display */}
         {!state.isLoading && (
-          <div className="game-word-card bg-white bg-opacity-70 rounded-3xl shadow-md p-4">
+          <div className="game-word-card bg-white bg-opacity-70 rounded-3xl p-4">
             <WordDisplay word={state.word} guessedLetters={state.guessedLetters} />
             <div className="mt-3 flex flex-wrap gap-1.5 justify-center min-h-6">
               {wrongLetters.map(l => (
@@ -216,7 +212,7 @@ export default function App() {
         {/* Keyboard */}
         {!state.isLoading && (
           <div
-            className="game-keyboard-card bg-white bg-opacity-70 rounded-3xl shadow-md p-3"
+            className="game-keyboard-card bg-white bg-opacity-70 rounded-3xl p-3"
             style={{ backdropFilter: 'blur(6px)' }}
           >
             <LetterKeyboard
