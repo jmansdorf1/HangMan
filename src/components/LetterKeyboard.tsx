@@ -11,9 +11,9 @@ export function LetterKeyboard({ guessedLetters, correctLetters, onGuess, disabl
   const correctSet = new Set(correctLetters);
 
   return (
-    <div className="flex flex-col items-center gap-2 w-full">
+    <div className="flex flex-col items-center gap-1.5 md:gap-2 w-full">
       {ROWS.map((row, ri) => (
-        <div key={ri} className="flex gap-1.5">
+        <div key={ri} className="flex gap-1 md:gap-1.5">
           {row.split('').map(letter => {
             const guessed = guessedLetters.has(letter);
             const correct = correctSet.has(letter);
@@ -29,7 +29,7 @@ export function LetterKeyboard({ guessedLetters, correctLetters, onGuess, disabl
                 onClick={() => !guessed && !disabled && onGuess(letter)}
                 disabled={guessed || disabled}
                 className={`
-                  w-8 h-10 sm:w-9 sm:h-11 rounded-lg border-2 font-bold text-sm
+                  w-7 h-9 md:w-8 md:h-10 lg:w-9 lg:h-11 rounded-md md:rounded-lg border-2 font-bold text-xs md:text-sm
                   shadow-sm transition-all duration-150 select-none
                   ${bg}
                   ${guessed ? 'cursor-default' : 'cursor-pointer'}

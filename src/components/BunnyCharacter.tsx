@@ -135,7 +135,7 @@ export function BunnyCharacter({ bites, won, onGhostAnimationComplete, onWinAnim
 
   return (
     <div
-      className="select-none relative"
+      className="select-none relative w-full max-w-[210px] md:max-w-[280px] mx-auto"
       style={{
         animation: animating ? 'bunnyShake 0.4s ease' : undefined,
       }}
@@ -143,12 +143,7 @@ export function BunnyCharacter({ bites, won, onGhostAnimationComplete, onWinAnim
       <svg
         viewBox="0 0 200 270"
         xmlns="http://www.w3.org/2000/svg"
-        style={{
-          width: '100%',
-          maxWidth: 280,
-          display: 'block',
-          margin: '0 auto',
-        }}
+        className="w-full h-auto"
       >
         <defs>
           <mask id="leftEyeMask">
