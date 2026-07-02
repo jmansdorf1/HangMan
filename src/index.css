@@ -114,3 +114,16 @@ html, body, #root {
     transform: translateY(30px) rotate(var(--crumb-rotate, 180deg));
   }
 }
+
+/* Safe area padding for mobile devices with home indicators */
+@layer utilities {
+  .pb-safe {
+    padding-bottom: max(5rem, calc(4rem + env(safe-area-inset-bottom, 0px)));
+  }
+}
+
+@media (min-width: 768px) {
+  .pb-safe {
+    padding-bottom: 1rem;
+  }
+}

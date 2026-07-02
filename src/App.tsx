@@ -1,17 +1,59 @@
 import { useState, useEffect } from 'react';
-import { useGame } from './hooks/useGame';
+import { useGame, CATEGORIES, DIFFICULTIES } from './hooks/useGame';
 import { BunnyCharacter } from './components/BunnyCharacter';
 import { WordDisplay } from './components/WordDisplay';
 import { LetterKeyboard } from './components/LetterKeyboard';
+import type { Category, Difficulty } from './hooks/useGame';
 
 const MAX_WRONG = 8;
-const CATEGORIES = ['Animals', 'Food', 'Space', 'Nature', 'Sports', 'Colors'];
+
+// Local storage keys
+const STORAGE_CATEGORY = 'bunny_category';
+const STORAGE_DIFFICULTY = 'bunny_difficulty';
+
+// Get initial values from localStorage
+function getInitialCategory(): Category {
+  const saved = localStorage.getItem(STORAGE_CATEGORY);
+  if (saved && CATEGORIES.includes(saved as Category)) {
+    return saved as Category;
+  }
+  return CATEGORIES[0];
+}
+
+function getInitialDifficulty(): Difficulty {
+  const saved = localStorage.getItem(STORAGE_DIFFICULTY);
+  if (saved && DIFFICULTIES.includes(saved as Difficulty)) {
+    return saved as Difficulty;
+  }
+  return 'easy';
+}
+
+// Difficulty display config
+const DIFFICULTY_CONFIG: Record<Difficulty, { label: string; emoji: string }> = {
+  easy: { label: 'Easy', emoji: '😊' },
+  medium: { label: 'Medium', emoji: '😅' },
+  hard: { label: 'Hard', emoji: '😈' },
+};
 
 export default function App() {
-  const [selectedCategory, setSelectedCategory] = useState<string>(CATEGORIES[0]);
+  const [selectedCategory, setSelectedCategory] = useState<Category>(getInitialCategory);
+  const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>(getInitialDifficulty);
   const [showResult, setShowResult] = useState(false);
   const [showWinAnimation, setShowWinAnimation] = useState(false);
-  const { state, streak, correctLetters, wrongLetters, guessLetter, startNewGame } = useGame(selectedCategory);
+
+  const { state, bunniesSaved, correctLetters, wrongLetters, guessLetter, startNewGame } = useGame(
+    selectedCategory,
+    selectedDifficulty
+  );
+
+  // Save preferences when they change
+  useEffect(() => {
+    localStorage.setItem(STORAGE_CATEGORY, selectedCategory);
+  }, [selectedCategory]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_DIFFICULTY, selectedDifficulty);
+  }, [selectedDifficulty]);
 
   useEffect(() => {
     if (state.status === 'won') {
@@ -31,9 +73,18 @@ export default function App() {
   };
 
   const handleCategoryChange = (category: string) => {
-    if (category !== selectedCategory) {
-      setSelectedCategory(category);
+    if (category !== selectedCategory && CATEGORIES.includes(category as Category)) {
+      setSelectedCategory(category as Category);
       setShowResult(false);
+      setShowWinAnimation(false);
+    }
+  };
+
+  const handleDifficultyChange = (difficulty: Difficulty) => {
+    if (difficulty !== selectedDifficulty) {
+      setSelectedDifficulty(difficulty);
+      setShowResult(false);
+      setShowWinAnimation(false);
     }
   };
 
@@ -52,16 +103,17 @@ export default function App() {
             <h1 className="text-xl md:text-2xl font-extrabold text-amber-900 leading-tight tracking-tight">
               Choco Bunny Hangman
             </h1>
-            {streak > 0 && (
-              <div className="bg-amber-800 text-amber-100 rounded-xl md:rounded-2xl px-3 md:px-4 py-1 md:py-1.5 flex flex-col items-center shadow-md">
-                <span className="text-base md:text-lg font-extrabold leading-none">{streak}</span>
-                <span className="text-[10px] md:text-xs font-semibold uppercase tracking-wide opacity-80">streak</span>
+            <div className="bg-amber-800 text-amber-100 rounded-xl md:rounded-2xl px-3 md:px-4 py-1 md:py-1.5 flex items-center gap-2 shadow-md">
+              <span className="text-base md:text-lg">🐰</span>
+              <div className="flex flex-col items-center">
+                <span className="text-base md:text-lg font-extrabold leading-none">{bunniesSaved}</span>
+                <span className="text-[10px] md:text-xs font-semibold uppercase tracking-wide opacity-80">saved</span>
               </div>
-            )}
+            </div>
           </div>
 
           {/* Category dropdown */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 mb-2 md:mb-3">
             <label htmlFor="category" className="text-[10px] md:text-xs font-semibold text-amber-700 uppercase tracking-wider">
               Category:
             </label>
@@ -70,7 +122,7 @@ export default function App() {
               value={selectedCategory}
               onChange={(e) => handleCategoryChange(e.target.value)}
               disabled={state.status !== 'playing' && !showResult}
-              className="bg-white bg-opacity-70 border border-amber-200 text-amber-900 text-xs md:text-sm font-semibold rounded-lg md:rounded-xl px-2 md:px-3 py-1 md:py-1.5 shadow-sm cursor-pointer hover:bg-opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-white bg-opacity-70 border border-amber-200 text-amber-900 text-xs md:text-sm font-semibold rounded-lg md:rounded-xl px-2 md:px-3 py-1 md:py-1.5 shadow-sm cursor-pointer hover:bg-opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex-1"
             >
               {CATEGORIES.map(cat => (
                 <option key={cat} value={cat}>
@@ -78,6 +130,43 @@ export default function App() {
                 </option>
               ))}
             </select>
+          </div>
+
+          {/* Difficulty selector - segmented buttons */}
+          <div className="flex items-center gap-2 mb-2 md:mb-3">
+            <span className="text-[10px] md:text-xs font-semibold text-amber-700 uppercase tracking-wider">
+              Difficulty:
+            </span>
+            <div className="flex flex-1 rounded-lg md:rounded-xl overflow-hidden border border-amber-200 bg-white bg-opacity-50">
+              {DIFFICULTIES.map((diff) => {
+                const config = DIFFICULTY_CONFIG[diff];
+                const isSelected = selectedDifficulty === diff;
+                const isDisabled = state.status !== 'playing' && !showResult;
+
+                return (
+                  <button
+                    key={diff}
+                    onClick={() => !isDisabled && handleDifficultyChange(diff)}
+                    disabled={isDisabled}
+                    className={`
+                      flex-1 py-1.5 md:py-2 px-2 md:px-3 text-xs md:text-sm font-semibold
+                      transition-all duration-150 select-none
+                      ${isSelected
+                        ? 'bg-amber-500 text-white shadow-inner'
+                        : 'bg-transparent text-amber-800 hover:bg-amber-100'
+                      }
+                      ${isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+                      ${diff === 'easy' ? 'rounded-l-lg md:rounded-l-xl' : ''}
+                      ${diff === 'hard' ? 'rounded-r-lg md:rounded-r-xl' : ''}
+                    `}
+                  >
+                    <span className="mr-1">{config.emoji}</span>
+                    <span className="hidden sm:inline">{config.label}</span>
+                    <span className="sm:hidden">{config.label.charAt(0)}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {/* Result message */}
@@ -103,7 +192,7 @@ export default function App() {
         </header>
 
         {/* Main */}
-        <main className="flex flex-col gap-2 md:gap-3 px-1 md:px-4 pb-2 md:pb-4">
+        <main className="flex flex-col gap-2 md:gap-3 px-1 md:px-4 pb-safe md:pb-4">
           {/* Bunny card */}
           <div
             className="bg-white bg-opacity-80 rounded-2xl md:rounded-3xl p-2 md:p-4 flex flex-col items-center gap-1 md:gap-2"

@@ -1,37 +1,77 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { playChomp } from '../lib/audio';
-import { fallbackWords } from '../data/words';
+import { fallbackWords, getWordsForDifficulty, CATEGORIES, DIFFICULTIES } from '../data/words';
 import { GameState, WordEntry } from '../types';
+import type { Category, Difficulty } from '../data/words';
 
 const MAX_WRONG = 8;
+const RECENT_WORDS_LIMIT = 20; // Track last 20 words to avoid repeats
 
-function pickRandom<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)];
-}
-
-async function fetchRandomWord(category?: string, previousWord?: string): Promise<WordEntry> {
+// Get recent words from localStorage
+function getRecentWords(): string[] {
   try {
-    let query = supabase.from('words').select('id, word, category, difficulty');
-    if (category) {
-      query = query.eq('category', category);
-    }
-    const { data, error } = await query;
-    if (error || !data || data.length === 0) {
-      const filtered = category ? fallbackWords.filter(w => w.category === category) : fallbackWords;
-      const eligible = filtered.filter(w => w.word.toUpperCase() !== previousWord?.toUpperCase());
-      return pickRandom(eligible.length > 0 ? eligible : filtered.length > 0 ? filtered : fallbackWords);
-    }
-    const eligible = (data as WordEntry[]).filter(w => w.word.toUpperCase() !== previousWord?.toUpperCase());
-    return pickRandom(eligible.length > 0 ? eligible : data as WordEntry[]);
+    const saved = localStorage.getItem('bunny_recent_words');
+    return saved ? JSON.parse(saved) : [];
   } catch {
-    const filtered = category ? fallbackWords.filter(w => w.category === category) : fallbackWords;
-    const eligible = filtered.filter(w => w.word.toUpperCase() !== previousWord?.toUpperCase());
-    return pickRandom(eligible.length > 0 ? eligible : filtered.length > 0 ? filtered : fallbackWords);
+    return [];
   }
 }
 
-export function useGame(selectedCategory?: string) {
+// Save recent words to localStorage
+function saveRecentWords(words: string[]): void {
+  try {
+    localStorage.setItem('bunny_recent_words', JSON.stringify(words.slice(-RECENT_WORDS_LIMIT)));
+  } catch {
+    // Ignore storage errors
+  }
+}
+
+// Smart random selection with weighted distribution
+// Avoids recent words and distributes picks more evenly
+function pickSmartRandom<T extends { word: string }>(arr: T[], recentWords: string[]): T {
+  // Filter out recent words
+  const eligible = arr.filter(w => !recentWords.includes(w.word.toUpperCase()));
+
+  // If all words are recent, reset and use all
+  const pool = eligible.length > 0 ? eligible : arr;
+
+  // Shuffle and pick (Fisher-Yates inspired random selection)
+  const randomIndex = Math.floor(Math.random() * pool.length);
+  return pool[randomIndex];
+}
+
+async function fetchRandomWord(
+  category: Category,
+  difficulty: Difficulty,
+  recentWords: string[]
+): Promise<WordEntry> {
+  try {
+    let query = supabase.from('words').select('id, word, category, difficulty');
+    query = query.eq('category', category);
+    query = query.eq('difficulty', difficulty);
+
+    const { data, error } = await query;
+
+    if (error || !data || data.length === 0) {
+      // Fall back to local word library
+      const categoryWords = fallbackWords.filter(w => w.category === category);
+      const difficultyWords = getWordsForDifficulty(categoryWords, difficulty);
+      return pickSmartRandom(difficultyWords.length > 0 ? difficultyWords : categoryWords, recentWords);
+    }
+
+    const typedData = data as WordEntry[];
+    const eligible = typedData.filter(w => !recentWords.includes(w.word.toUpperCase()));
+    return pickSmartRandom(eligible.length > 0 ? eligible : typedData, recentWords);
+  } catch {
+    // Fall back to local word library
+    const categoryWords = fallbackWords.filter(w => w.category === category);
+    const difficultyWords = getWordsForDifficulty(categoryWords, difficulty);
+    return pickSmartRandom(difficultyWords.length > 0 ? difficultyWords : categoryWords, recentWords);
+  }
+}
+
+export function useGame(selectedCategory: Category, selectedDifficulty: Difficulty) {
   const [state, setState] = useState<GameState>({
     word: '',
     category: '',
@@ -41,17 +81,27 @@ export function useGame(selectedCategory?: string) {
     isLoading: true,
   });
 
-  const [streak, setStreak] = useState(() => {
-    const saved = localStorage.getItem('bunny_streak');
-    return saved ? parseInt(saved, 10) : 0;
-  });
+  // Bunnies Saved counter - session only, not persisted
+  const [bunniesSaved, setBunniesSaved] = useState(0);
 
-  const prevWordRef = useRef<string | undefined>(undefined);
+  // Track if we've already counted a win for the current game
+  const winCountedRef = useRef(false);
+
+  const recentWordsRef = useRef<string[]>(getRecentWords());
 
   const startNewGame = useCallback(async () => {
     setState(prev => ({ ...prev, isLoading: true }));
-    const entry = await fetchRandomWord(selectedCategory, prevWordRef.current);
-    prevWordRef.current = entry.word.toUpperCase();
+
+    const entry = await fetchRandomWord(selectedCategory, selectedDifficulty, recentWordsRef.current);
+
+    // Update recent words list
+    const updatedRecent = [...recentWordsRef.current, entry.word.toUpperCase()];
+    recentWordsRef.current = updatedRecent.slice(-RECENT_WORDS_LIMIT);
+    saveRecentWords(recentWordsRef.current);
+
+    // Reset win counted flag for new game
+    winCountedRef.current = false;
+
     setState({
       word: entry.word.toUpperCase(),
       category: entry.category,
@@ -60,13 +110,11 @@ export function useGame(selectedCategory?: string) {
       status: 'playing',
       isLoading: false,
     });
-  }, [selectedCategory]);
+  }, [selectedCategory, selectedDifficulty]);
 
   useEffect(() => {
-    if (selectedCategory) {
-      startNewGame();
-    }
-  }, [selectedCategory]);
+    startNewGame();
+  }, [startNewGame]);
 
   const guessLetter = useCallback((letter: string) => {
     setState(prev => {
@@ -95,14 +143,11 @@ export function useGame(selectedCategory?: string) {
     });
   }, []);
 
+  // Update bunnies saved counter - only once per win
   useEffect(() => {
-    if (state.status === 'won') {
-      const newStreak = streak + 1;
-      setStreak(newStreak);
-      localStorage.setItem('bunny_streak', String(newStreak));
-    } else if (state.status === 'lost') {
-      setStreak(0);
-      localStorage.setItem('bunny_streak', '0');
+    if (state.status === 'won' && !winCountedRef.current) {
+      winCountedRef.current = true;
+      setBunniesSaved(prev => prev + 1);
     }
   }, [state.status]);
 
@@ -116,7 +161,7 @@ export function useGame(selectedCategory?: string) {
 
   return {
     state,
-    streak,
+    bunniesSaved,
     correctLetters,
     wrongLetters,
     guessLetter,
@@ -124,3 +169,7 @@ export function useGame(selectedCategory?: string) {
     maxWrong: MAX_WRONG,
   };
 }
+
+// Export constants for use in UI
+export { CATEGORIES, DIFFICULTIES };
+export type { Category, Difficulty };
