@@ -214,9 +214,13 @@ export default function App() {
                 <p className="text-amber-600 text-xs md:text-sm font-semibold">Finding a word...</p>
               </div>
             ) : showResult && state.status === 'lost' ? (
-              <div className="flex flex-col items-center justify-center py-6 md:py-10">
+              <div className="flex flex-col items-center justify-center min-h-[200px] md:min-h-[270px]">
                 <p className="text-xs md:text-sm text-rose-700 mb-1">The word was:</p>
                 <p className="text-lg md:text-xl font-bold text-rose-800 tracking-widest">{state.word}</p>
+              </div>
+            ) : showResult && state.status === 'won' ? (
+              <div className="flex flex-col items-center justify-center min-h-[200px] md:min-h-[270px]">
+                <p className="text-lg md:text-xl font-bold text-amber-800">You saved the bunny!</p>
               </div>
             ) : (
               <BunnyCharacter
@@ -245,29 +249,29 @@ export default function App() {
             </div>
           )}
 
+          {/* Result message - above keyboard, outside cards */}
+          {!state.isLoading && showResult && (state.status === 'won' || state.status === 'lost') && (
+            <div className="text-center">
+              {state.status === 'won' ? (
+                <p className="text-xl md:text-2xl font-extrabold text-amber-900 mb-2">You Won!</p>
+              ) : (
+                <p className="text-xl md:text-2xl font-extrabold text-rose-900 mb-2">You Lost!</p>
+              )}
+              <button
+                onClick={handlePlayAgain}
+                className="bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 active:scale-95 text-white font-bold py-1.5 md:py-2 px-5 md:px-6 rounded-lg md:rounded-xl transition-all duration-150 shadow-md text-sm md:text-base"
+              >
+                Play Again
+              </button>
+            </div>
+          )}
+
           {/* Keyboard */}
           {!state.isLoading && (
             <div
               className="bg-white bg-opacity-70 rounded-2xl md:rounded-3xl p-2 md:p-3"
               style={{ backdropFilter: 'blur(6px)' }}
             >
-              {/* Result message */}
-              {showResult && (state.status === 'won' || state.status === 'lost') && (
-                <div className="text-center mb-2 md:mb-3">
-                  {state.status === 'won' ? (
-                    <p className="text-xl md:text-2xl font-extrabold text-amber-900 mb-2">You Won!</p>
-                  ) : (
-                    <p className="text-xl md:text-2xl font-extrabold text-rose-900 mb-2">You Lost!</p>
-                  )}
-                  <button
-                    onClick={handlePlayAgain}
-                    className="bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 active:scale-95 text-white font-bold py-1.5 md:py-2 px-5 md:px-6 rounded-lg md:rounded-xl transition-all duration-150 shadow-md text-sm md:text-base"
-                  >
-                    Play Again
-                  </button>
-                </div>
-              )}
-
               <LetterKeyboard
                 guessedLetters={state.guessedLetters}
                 correctLetters={correctLetters}
