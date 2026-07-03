@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useGame, CATEGORIES, DIFFICULTIES } from './hooks/useGame';
 import { BunnyCharacter } from './components/BunnyCharacter';
 import { WordDisplay } from './components/WordDisplay';
 import { LetterKeyboard } from './components/LetterKeyboard';
+import { unlockAudio } from './lib/audio';
 import type { Category, Difficulty } from './hooks/useGame';
 
 const MAX_WRONG = 8;
@@ -46,6 +47,12 @@ export default function App() {
     selectedDifficulty
   );
 
+  // Wrap guess letter to unlock audio on first interaction
+  const handleGuess = useCallback((letter: string) => {
+    unlockAudio();
+    guessLetter(letter);
+  }, [guessLetter]);
+
   // Save preferences when they change
   useEffect(() => {
     localStorage.setItem(STORAGE_CATEGORY, selectedCategory);
@@ -73,6 +80,7 @@ export default function App() {
   };
 
   const handleCategoryChange = (category: string) => {
+    unlockAudio();
     if (category !== selectedCategory && CATEGORIES.includes(category as Category)) {
       setSelectedCategory(category as Category);
       setShowResult(false);
@@ -81,6 +89,7 @@ export default function App() {
   };
 
   const handleDifficultyChange = (difficulty: Difficulty) => {
+    unlockAudio();
     if (difficulty !== selectedDifficulty) {
       setSelectedDifficulty(difficulty);
       setShowResult(false);
@@ -270,7 +279,7 @@ export default function App() {
               <LetterKeyboard
                 guessedLetters={state.guessedLetters}
                 correctLetters={correctLetters}
-                onGuess={guessLetter}
+                onGuess={handleGuess}
                 disabled={state.status !== 'playing'}
               />
             </div>
