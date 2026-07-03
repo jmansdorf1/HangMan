@@ -84,9 +84,6 @@ export function useGame(selectedCategory: Category, selectedDifficulty: Difficul
   // Bunnies Saved counter - session only, not persisted
   const [bunniesSaved, setBunniesSaved] = useState(0);
 
-  // Track if we've already counted a win for the current game
-  const winCountedRef = useRef(false);
-
   const recentWordsRef = useRef<string[]>(getRecentWords());
 
   const startNewGame = useCallback(async () => {
@@ -99,9 +96,6 @@ export function useGame(selectedCategory: Category, selectedDifficulty: Difficul
     recentWordsRef.current = updatedRecent.slice(-RECENT_WORDS_LIMIT);
     saveRecentWords(recentWordsRef.current);
 
-    // Reset win counted flag for new game
-    winCountedRef.current = false;
-
     setState({
       word: entry.word.toUpperCase(),
       category: entry.category,
@@ -111,6 +105,11 @@ export function useGame(selectedCategory: Category, selectedDifficulty: Difficul
       isLoading: false,
     });
   }, [selectedCategory, selectedDifficulty]);
+
+  // Increment bunnies saved - called externally after win animation
+  const incrementBunniesSaved = useCallback(() => {
+    setBunniesSaved(prev => prev + 1);
+  }, []);
 
   useEffect(() => {
     startNewGame();
@@ -143,14 +142,6 @@ export function useGame(selectedCategory: Category, selectedDifficulty: Difficul
     });
   }, []);
 
-  // Update bunnies saved counter - only once per win
-  useEffect(() => {
-    if (state.status === 'won' && !winCountedRef.current) {
-      winCountedRef.current = true;
-      setBunniesSaved(prev => prev + 1);
-    }
-  }, [state.status]);
-
   const correctLetters = state.word
     ? state.word.split('').filter(l => state.guessedLetters.has(l))
     : [];
@@ -166,6 +157,7 @@ export function useGame(selectedCategory: Category, selectedDifficulty: Difficul
     wrongLetters,
     guessLetter,
     startNewGame,
+    incrementBunniesSaved,
     maxWrong: MAX_WRONG,
   };
 }

@@ -41,8 +41,9 @@ export default function App() {
   const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>(getInitialDifficulty);
   const [showResult, setShowResult] = useState(false);
   const [showWinAnimation, setShowWinAnimation] = useState(false);
+  const [celebrateCounter, setCelebrateCounter] = useState(false);
 
-  const { state, bunniesSaved, correctLetters, wrongLetters, guessLetter, startNewGame } = useGame(
+  const { state, bunniesSaved, correctLetters, wrongLetters, guessLetter, startNewGame, incrementBunniesSaved } = useGame(
     selectedCategory,
     selectedDifficulty
   );
@@ -70,7 +71,14 @@ export default function App() {
 
   const handleWinAnimationComplete = () => {
     setShowWinAnimation(false);
-    setShowResult(true);
+    // Increment counter and trigger celebration animation
+    incrementBunniesSaved();
+    setCelebrateCounter(true);
+    // Show result after celebration animation
+    setTimeout(() => {
+      setCelebrateCounter(false);
+      setShowResult(true);
+    }, 500);
   };
 
   const handlePlayAgain = () => {
@@ -112,7 +120,12 @@ export default function App() {
             <h1 className="text-xl md:text-2xl font-extrabold text-amber-900 leading-tight tracking-tight">
               Choco Bunny Hangman
             </h1>
-            <div className="bg-amber-800 text-amber-100 rounded-xl md:rounded-2xl px-3 md:px-4 py-1 md:py-1.5 flex items-center gap-2 shadow-md">
+            <div
+              className="bg-amber-800 text-amber-100 rounded-xl md:rounded-2xl px-3 md:px-4 py-1 md:py-1.5 flex items-center gap-2 shadow-md"
+              style={{
+                animation: celebrateCounter ? 'counterCelebrate 0.5s ease-out forwards' : 'none',
+              }}
+            >
               <span className="text-base md:text-lg">🐰</span>
               <div className="flex flex-col items-center">
                 <span className="text-base md:text-lg font-extrabold leading-none">{bunniesSaved}</span>
