@@ -127,7 +127,7 @@ export function useGame(selectedCategory: Category, selectedDifficulty: Difficul
       const newWrong = isWrong ? prev.wrongGuesses + 1 : prev.wrongGuesses;
 
       if (isWrong) {
-        playChomp();
+        playChomp(newWrong);
       }
 
       const allRevealed = prev.word.split('').every(l => newGuessed.has(l));
