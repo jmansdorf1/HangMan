@@ -31,9 +31,9 @@ function getInitialDifficulty(): Difficulty {
 
 // Difficulty display config
 const DIFFICULTY_CONFIG: Record<Difficulty, { label: string; emoji: string }> = {
-  easy: { label: 'Easy', emoji: '😊' },
-  medium: { label: 'Medium', emoji: '😅' },
-  hard: { label: 'Hard', emoji: '😈' },
+  easy: { label: 'Easy', emoji: '🥕' },
+  medium: { label: 'Medium', emoji: '🥕🥕' },
+  hard: { label: 'Hard', emoji: '🥕🥕🥕' },
 };
 
 export default function App() {
