@@ -118,7 +118,7 @@ export default function App() {
         <header className="pt-1 md:pt-5 pb-1 md:pb-1 px-1 md:px-5">
           <div className="flex items-center justify-between mb-2 md:mb-3">
             <h1 className="text-xl md:text-2xl font-extrabold text-amber-900 leading-tight tracking-tight">
-              Choco Bunny Hangman
+              Choco Bunny Quest
             </h1>
             <div
               className="bg-amber-800 text-amber-100 rounded-xl md:rounded-2xl px-3 md:px-4 py-1 md:py-1.5 flex items-center gap-2 shadow-md"
