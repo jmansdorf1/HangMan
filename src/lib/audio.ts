@@ -34,22 +34,36 @@ function preloadBuffers(): void {
   }
 }
 
-// Unlock audio for mobile browsers - must be called after user interaction
+// Unlock audio for mobile browsers - must be called after user interaction.
+// On iOS Safari, resume() alone resolves after the gesture handler returns,
+// so we also play a silent buffer synchronously within the gesture to unlock.
+// The context can be re-suspended when a mobile tab returns from background,
+// so we resume on every call — not just the first.
 export function unlockAudio(): void {
-  if (isUnlocked) return;
-
   const ctx = getAudioContext();
   if (!ctx) return;
 
+  // Always resume if suspended (handles re-suspension after backgrounding)
   if (ctx.state === 'suspended') {
-    ctx.resume().then(() => {
-      isUnlocked = true;
-      preloadBuffers();
-    }).catch(() => {});
-  } else {
-    isUnlocked = true;
-    preloadBuffers();
+    ctx.resume().catch(() => {});
   }
+
+  // iOS requires an AudioBufferSourceNode to be started within the gesture
+  if (!isUnlocked) {
+    try {
+      const silentBuffer = ctx.createBuffer(1, 1, ctx.sampleRate);
+      const source = ctx.createBufferSource();
+      source.buffer = silentBuffer;
+      source.connect(ctx.destination);
+      source.start(0);
+      isUnlocked = true;
+    } catch {
+      // ignore — will retry on next interaction
+    }
+  }
+
+  // Preload synchronously (not in a promise callback) for low latency
+  preloadBuffers();
 }
 
 function pickRandom<T>(arr: T[]): T {
