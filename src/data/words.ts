@@ -166,7 +166,7 @@ function makeId(category: string, difficulty: string, index: number): string {
 
 export const fallbackWords: WordEntry[] = CATEGORIES.flatMap(category =>
   DIFFICULTIES.flatMap(difficulty =>
-    wordLibrary[category][difficulty].map((word, index) => ({
+    wordLibrary[category][difficulty].map((word) => ({
       id: makeId(category, difficulty, idCounter++),
       word,
       category,

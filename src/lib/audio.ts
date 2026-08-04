@@ -319,6 +319,95 @@ function playBiggestBite(ctx: AudioContext, now: number, dest: AudioNode): void 
 // Picks the appropriate tier and a random variant within it.
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// End-of-game musical cues
+// ---------------------------------------------------------------------------
+
+// A gentle "aww..." — two soft descending notes, sweet and slightly sad.
+export function playLossCue(): void {
+  const ctx = getAudioContext();
+  if (!ctx) return;
+  if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+  try {
+    const now = ctx.currentTime;
+    const master = ctx.createGain();
+    master.gain.setValueAtTime(0, now);
+    master.gain.linearRampToValueAtTime(0.5, now + 0.05);
+    master.gain.exponentialRampToValueAtTime(0.001, now + 1.8);
+    master.connect(ctx.destination);
+
+    const notes = [
+      { freq: 523.25, start: 0, dur: 0.5 },   // C5
+      { freq: 392.00, start: 0.35, dur: 0.7 }, // G4
+      { freq: 329.63, start: 0.75, dur: 0.9 }, // E4
+    ];
+    for (const n of notes) {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(n.freq, now + n.start);
+      gain.gain.setValueAtTime(0, now + n.start);
+      gain.gain.linearRampToValueAtTime(0.3, now + n.start + n.dur * 0.2);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + n.start + n.dur);
+      osc.connect(gain);
+      gain.connect(master);
+      osc.start(now + n.start);
+      osc.stop(now + n.start + n.dur + 0.05);
+    }
+  } catch {
+    // silently fail
+  }
+}
+
+// A short joyful sparkle — light ascending arpeggio with a warm shimmer.
+export function playWinCue(): void {
+  const ctx = getAudioContext();
+  if (!ctx) return;
+  if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+  try {
+    const now = ctx.currentTime;
+    const master = ctx.createGain();
+    master.gain.setValueAtTime(0, now);
+    master.gain.linearRampToValueAtTime(0.45, now + 0.05);
+    master.gain.exponentialRampToValueAtTime(0.001, now + 1.6);
+    master.connect(ctx.destination);
+
+    const notes = [
+      { freq: 523.25, start: 0, dur: 0.25 },    // C5
+      { freq: 659.25, start: 0.12, dur: 0.25 }, // E5
+      { freq: 783.99, start: 0.24, dur: 0.3 },  // G5
+      { freq: 1046.5, start: 0.36, dur: 0.6 },  // C6
+    ];
+    for (const n of notes) {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(n.freq, now + n.start);
+      gain.gain.setValueAtTime(0, now + n.start);
+      gain.gain.linearRampToValueAtTime(0.25, now + n.start + n.dur * 0.15);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + n.start + n.dur);
+      osc.connect(gain);
+      gain.connect(master);
+      osc.start(now + n.start);
+      osc.stop(now + n.start + n.dur + 0.05);
+    }
+    // gentle shimmer layer
+    const shimmer = ctx.createOscillator();
+    const shimmerGain = ctx.createGain();
+    shimmer.type = 'sine';
+    shimmer.frequency.setValueAtTime(2093, now + 0.36);
+    shimmerGain.gain.setValueAtTime(0, now + 0.36);
+    shimmerGain.gain.linearRampToValueAtTime(0.08, now + 0.4);
+    shimmerGain.gain.exponentialRampToValueAtTime(0.001, now + 1.0);
+    shimmer.connect(shimmerGain);
+    shimmerGain.connect(master);
+    shimmer.start(now + 0.36);
+    shimmer.stop(now + 1.1);
+  } catch {
+    // silently fail
+  }
+}
+
 export function playChomp(wrongGuess: number = 1): void {
   const ctx = getAudioContext();
   if (!ctx) return;

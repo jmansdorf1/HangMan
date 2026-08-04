@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useGame, CATEGORIES, DIFFICULTIES } from './hooks/useGame';
 import { BunnyCharacter } from './components/BunnyCharacter';
+import { StageParticles } from './components/StageParticles';
 import { WordDisplay } from './components/WordDisplay';
 import { LetterKeyboard } from './components/LetterKeyboard';
-import { unlockAudio } from './lib/audio';
+import { unlockAudio, playWinCue, playLossCue } from './lib/audio';
 import type { Category, Difficulty } from './hooks/useGame';
 
 const MAX_WRONG = 8;
@@ -39,9 +40,10 @@ const DIFFICULTY_CONFIG: Record<Difficulty, { label: string; emoji: string }> = 
 export default function App() {
   const [selectedCategory, setSelectedCategory] = useState<Category>(getInitialCategory);
   const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>(getInitialDifficulty);
-  const [showWinAnimation, setShowWinAnimation] = useState(false);
   const [celebrateCounter, setCelebrateCounter] = useState(false);
   const [showEndMessage, setShowEndMessage] = useState(false);
+  const [showParticles, setShowParticles] = useState(false);
+  const audioPlayedRef = useRef(false);
 
   const { state, bunniesSaved, correctLetters, wrongLetters, guessLetter, startNewGame, incrementBunniesSaved } = useGame(
     selectedCategory,
@@ -63,31 +65,33 @@ export default function App() {
     localStorage.setItem(STORAGE_DIFFICULTY, selectedDifficulty);
   }, [selectedDifficulty]);
 
-  useEffect(() => {
-    if (state.status === 'won') {
-      setShowWinAnimation(true);
+  const handleExited = () => {
+    const status = state.status;
+    // Play audio cue once when the rabbit exits
+    if (!audioPlayedRef.current) {
+      audioPlayedRef.current = true;
+      if (status === 'lost') playLossCue();
+      else if (status === 'won') playWinCue();
     }
-  }, [state.status]);
+    // Show particles during the empty pause
+    setShowParticles(true);
+    // After particles drift, fade in the end message
+    setTimeout(() => {
+      setShowParticles(false);
+      setShowEndMessage(true);
+    }, 1400);
+  };
 
-  const handleWinAnimationComplete = () => {
-    setShowWinAnimation(false);
-    // Increment counter and trigger celebration animation
+  const handleWinAnimationComplete = useCallback(() => {
     incrementBunniesSaved();
     setCelebrateCounter(true);
-    // Show result after celebration animation
-    setTimeout(() => {
-      setCelebrateCounter(false);
-      setShowResult(true);
-    }, 500);
-  };
-
-  const handleExited = () => {
-    setTimeout(() => setShowEndMessage(true), 400);
-  };
+    setTimeout(() => setCelebrateCounter(false), 600);
+  }, [incrementBunniesSaved]);
 
   const handlePlayAgain = () => {
     setShowEndMessage(false);
-    setShowWinAnimation(false);
+    setShowParticles(false);
+    audioPlayedRef.current = false;
     startNewGame();
   };
 
@@ -96,7 +100,8 @@ export default function App() {
     if (category !== selectedCategory && CATEGORIES.includes(category as Category)) {
       setSelectedCategory(category as Category);
       setShowEndMessage(false);
-      setShowWinAnimation(false);
+      setShowParticles(false);
+      audioPlayedRef.current = false;
     }
   };
 
@@ -105,7 +110,8 @@ export default function App() {
     if (difficulty !== selectedDifficulty) {
       setSelectedDifficulty(difficulty);
       setShowEndMessage(false);
-      setShowWinAnimation(false);
+      setShowParticles(false);
+      audioPlayedRef.current = false;
     }
   };
 
@@ -205,74 +211,82 @@ export default function App() {
             className="bg-white bg-opacity-80 rounded-2xl md:rounded-3xl p-2 md:p-4 flex flex-col items-center gap-1 md:gap-2"
             style={{ backdropFilter: 'blur(8px)' }}
           >
-            {/* Wrong guess indicators - hidden when game is over */}
-            {state.status === 'playing' && (
-              <div className="flex gap-1 md:gap-1.5">
-                {Array.from({ length: MAX_WRONG }).map((_, i) => (
-                  i < state.wrongGuesses ? (
-                    <div
-                      key={i}
-                      className="w-2 md:w-2.5 h-2 md:h-2.5 flex items-center justify-center transition-all duration-300"
-                      style={{
-                        transform: i === state.wrongGuesses - 1 ? 'scale(1.35)' : 'scale(1)',
-                      }}
-                    >
-                      <span className="text-red-500 font-bold leading-none" style={{ fontSize: '6px' }}>
-                        X
-                      </span>
-                    </div>
-                  ) : (
-                    <div
-                      key={i}
-                      className="w-2 md:w-2.5 h-2 md:h-2.5 rounded-full transition-all duration-300"
-                      style={{
-                        background: '#FDE8D8',
-                      }}
-                    />
-                  )
-                ))}
-              </div>
-            )}
-
-            {/* Bunny / End-of-game message */}
-            {state.isLoading ? (
-              <div className="flex flex-col items-center gap-2 md:gap-3 py-4 md:py-8">
-                <div
-                  className="w-8 md:w-10 h-8 md:h-10 rounded-full border-3 md:border-4 border-amber-300 border-t-amber-700"
-                  style={{ animation: 'spin 0.8s linear infinite' }}
-                />
-                <p className="text-amber-600 text-xs md:text-sm font-semibold">Finding a word...</p>
-              </div>
-            ) : showEndMessage ? (
-              <div
-                className="flex flex-col items-center justify-center gap-2 md:gap-3 py-4 md:py-8 w-full"
-                style={{ animation: 'endMessageFadeIn 0.3s ease-out forwards' }}
-              >
-                {state.status === 'won' ? (
-                  <p className="text-2xl md:text-3xl font-extrabold text-amber-900">You Won!</p>
+            {/* Wrong guess indicators - fade out when game ends, but keep space reserved */}
+            <div
+              className="flex gap-1 md:gap-1.5 transition-opacity duration-500"
+              style={{ opacity: state.status === 'playing' ? 1 : 0 }}
+            >
+              {Array.from({ length: MAX_WRONG }).map((_, i) => (
+                i < state.wrongGuesses ? (
+                  <div
+                    key={i}
+                    className="w-2 md:w-2.5 h-2 md:h-2.5 flex items-center justify-center transition-all duration-300"
+                    style={{
+                      transform: i === state.wrongGuesses - 1 ? 'scale(1.35)' : 'scale(1)',
+                    }}
+                  >
+                    <span className="text-red-500 font-bold leading-none" style={{ fontSize: '6px' }}>
+                      X
+                    </span>
+                  </div>
                 ) : (
-                  <>
-                    <p className="text-2xl md:text-3xl font-extrabold text-rose-900">You Lost!</p>
-                    <p className="text-xs md:text-sm text-rose-600">The word was:</p>
-                    <p className="text-lg md:text-xl font-bold text-rose-800 tracking-widest">{state.word}</p>
-                  </>
-                )}
-                <button
-                  onClick={handlePlayAgain}
-                  className="mt-2 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 active:scale-95 text-white font-bold py-2 md:py-2.5 px-6 md:px-7 rounded-lg md:rounded-xl transition-all duration-150 shadow-md text-sm md:text-base"
+                  <div
+                    key={i}
+                    className="w-2 md:w-2.5 h-2 md:h-2.5 rounded-full transition-all duration-300"
+                    style={{
+                      background: '#FDE8D8',
+                    }}
+                  />
+                )
+              ))}
+            </div>
+
+            {/* Bunny stage — fixed height to prevent layout shift */}
+            <div className="relative w-full" style={{ height: 'clamp(240px, 42vh, 340px)' }}>
+              {state.isLoading ? (
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 md:gap-3">
+                  <div
+                    className="w-8 md:w-10 h-8 md:h-10 rounded-full border-3 md:border-4 border-amber-300 border-t-amber-700"
+                    style={{ animation: 'spin 0.8s linear infinite' }}
+                  />
+                  <p className="text-amber-600 text-xs md:text-sm font-semibold">Finding a word...</p>
+                </div>
+              ) : showEndMessage ? (
+                <div
+                  className="absolute inset-0 flex flex-col items-center justify-center gap-2 md:gap-3"
+                  style={{ animation: 'endMessageFadeIn 0.3s ease-out forwards' }}
                 >
-                  Play Again
-                </button>
-              </div>
-            ) : (
-              <BunnyCharacter
-                bites={state.wrongGuesses}
-                won={state.status === 'won'}
-                onGhostAnimationComplete={() => {}}
-                onWinAnimationComplete={handleWinAnimationComplete}
-                onExited={handleExited}
-              />
-            )}
+                  {state.status === 'won' ? (
+                    <p className="text-2xl md:text-3xl font-extrabold text-amber-900">You Won!</p>
+                  ) : (
+                    <>
+                      <p className="text-2xl md:text-3xl font-extrabold text-rose-900">You Lost!</p>
+                      <p className="text-xs md:text-sm text-rose-600">The word was:</p>
+                      <p className="text-lg md:text-xl font-bold text-rose-800 tracking-widest">{state.word}</p>
+                    </>
+                  )}
+                  <button
+                    onClick={handlePlayAgain}
+                    className="mt-2 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 active:scale-95 text-white font-bold py-2 md:py-2.5 px-6 md:px-7 rounded-lg md:rounded-xl transition-all duration-150 shadow-md text-sm md:text-base"
+                  >
+                    Play Again
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <BunnyCharacter
+                    bites={state.wrongGuesses}
+                    won={state.status === 'won'}
+                    onGhostAnimationComplete={() => {}}
+                    onWinAnimationComplete={handleWinAnimationComplete}
+                    onExited={handleExited}
+                  />
+                  {showParticles && (
+                    <StageParticles kind={state.status === 'lost' ? 'loss' : 'win'} />
+                  )}
+                </>
+              )}
+            </div>
           </div>
 
           {/* Word display */}

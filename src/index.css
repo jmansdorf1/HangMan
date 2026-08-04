@@ -165,12 +165,44 @@ html, body, #root {
   }
 }
 
+@keyframes ghostFloatAway {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0.5;
+  }
+  30% {
+    transform: translateY(-30px) scale(1.05);
+    opacity: 0.4;
+  }
+  100% {
+    transform: translateY(-160px) scale(0.7);
+    opacity: 0;
+  }
+}
+
 @keyframes endMessageFadeIn {
   0% {
     opacity: 0;
   }
   100% {
     opacity: 1;
+  }
+}
+
+@keyframes particleDrift {
+  0% {
+    opacity: 0;
+    transform: translateY(0) translateX(0) rotate(0deg);
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(var(--drift-distance, 200px)) translateX(var(--drift-x, 0px)) rotate(var(--drift-rotate, 360deg));
   }
 }
 

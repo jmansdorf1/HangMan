@@ -84,12 +84,11 @@ export function BunnyCharacter({ bites, won, onGhostAnimationComplete, onWinAnim
     }
   }, [bites]);
 
-  // Loss sequence: ghost outline immediately (bites>=8) -> 1.2s pause -> float away (wobble 0.8s) -> 0.4s pause -> onExited
+  // Loss sequence: ghost outline immediately (bites>=8) -> 1.2s pause -> float away (1.2s) -> 0.4s pause -> onExited
   useEffect(() => {
     if (bites === 8) {
       const timers: ReturnType<typeof setTimeout>[] = [];
       timers.push(setTimeout(() => setGhostPartsFading(true), 1200));
-      // ghost wobble (0.8s) + small pause, then exit
       timers.push(setTimeout(() => setExiting(true), 2000));
       timers.push(setTimeout(() => {
         if (onGhostAnimationCompleteRef.current) {
@@ -98,7 +97,7 @@ export function BunnyCharacter({ bites, won, onGhostAnimationComplete, onWinAnim
         if (onExitedRef.current) {
           onExitedRef.current();
         }
-      }, 2600));
+      }, 3400));
       return () => { timers.forEach(clearTimeout); };
     }
   }, [bites]);
@@ -154,7 +153,7 @@ export function BunnyCharacter({ bites, won, onGhostAnimationComplete, onWinAnim
       className="select-none relative w-full max-w-[210px] md:max-w-[280px] mx-auto"
       style={{
         animation: exiting
-          ? 'bunnyHopOff 0.8s ease-in forwards'
+          ? (bites === 8 ? 'ghostFloatAway 1.2s ease-in forwards' : 'bunnyHopOff 0.8s ease-in forwards')
           : animating
             ? 'bunnyShake 0.4s ease'
             : undefined,
