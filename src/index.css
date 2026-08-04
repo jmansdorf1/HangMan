@@ -138,6 +138,42 @@ html, body, #root {
   }
 }
 
+@keyframes bunnyHopOff {
+  0% {
+    transform: translateY(0) translateX(0) scale(1);
+    opacity: 1;
+  }
+  20% {
+    transform: translateY(-22px) translateX(10px) scale(0.98);
+  }
+  40% {
+    transform: translateY(0) translateX(20px) scale(1);
+  }
+  55% {
+    transform: translateY(-18px) translateX(35px) scale(0.98);
+  }
+  70% {
+    transform: translateY(0) translateX(50px) scale(1);
+  }
+  85% {
+    transform: translateY(-12px) translateX(75px) scale(0.97);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-8px) translateX(120px) scale(0.9);
+    opacity: 0;
+  }
+}
+
+@keyframes endMessageFadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
 /* Safe area padding for mobile devices with home indicators */
 @layer utilities {
   .pb-safe {

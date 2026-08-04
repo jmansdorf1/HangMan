@@ -5,6 +5,7 @@ interface Props {
   won?: boolean;
   onGhostAnimationComplete?: () => void;
   onWinAnimationComplete?: () => void;
+  onExited?: () => void;
 }
 
 function CrumbParticle({ x, y, delay }: { x: number; y: number; delay: number }) {
@@ -56,15 +57,18 @@ function BiteMark({ x1, y1, x2, y2 }: { x1: number; y1: number; x2: number; y2: 
   );
 }
 
-export function BunnyCharacter({ bites, won, onGhostAnimationComplete, onWinAnimationComplete }: Props) {
+export function BunnyCharacter({ bites, won, onGhostAnimationComplete, onWinAnimationComplete, onExited }: Props) {
   const [animating, setAnimating] = useState(false);
   const [ghostPartsFading, setGhostPartsFading] = useState(false);
   const [winAnimating, setWinAnimating] = useState(false);
+  const [exiting, setExiting] = useState(false);
 
   const onGhostAnimationCompleteRef = useRef(onGhostAnimationComplete);
   const onWinAnimationCompleteRef = useRef(onWinAnimationComplete);
+  const onExitedRef = useRef(onExited);
   useEffect(() => { onGhostAnimationCompleteRef.current = onGhostAnimationComplete; }, [onGhostAnimationComplete]);
   useEffect(() => { onWinAnimationCompleteRef.current = onWinAnimationComplete; }, [onWinAnimationComplete]);
+  useEffect(() => { onExitedRef.current = onExited; }, [onExited]);
 
   useEffect(() => {
     if (bites > 0) {
@@ -80,21 +84,26 @@ export function BunnyCharacter({ bites, won, onGhostAnimationComplete, onWinAnim
     }
   }, [bites]);
 
-  // Loss sequence: ghost outline immediately (bites>=8) -> 1.2s pause -> float away -> 0.5s pause -> callback
+  // Loss sequence: ghost outline immediately (bites>=8) -> 1.2s pause -> float away (wobble 0.8s) -> 0.4s pause -> onExited
   useEffect(() => {
     if (bites === 8) {
       const timers: ReturnType<typeof setTimeout>[] = [];
       timers.push(setTimeout(() => setGhostPartsFading(true), 1200));
+      // ghost wobble (0.8s) + small pause, then exit
+      timers.push(setTimeout(() => setExiting(true), 2000));
       timers.push(setTimeout(() => {
         if (onGhostAnimationCompleteRef.current) {
           onGhostAnimationCompleteRef.current();
         }
-      }, 2500));
+        if (onExitedRef.current) {
+          onExitedRef.current();
+        }
+      }, 2600));
       return () => { timers.forEach(clearTimeout); };
     }
   }, [bites]);
 
-  // Win sequence: 1.2s pause -> wiggle (1.5s) -> 0.5s pause -> callback
+  // Win sequence: 1.2s pause -> wiggle (1.5s) -> 0.3s pause -> hop off (0.8s) -> 0.4s pause -> onExited
   useEffect(() => {
     if (won) {
       const timers: ReturnType<typeof setTimeout>[] = [];
@@ -104,7 +113,14 @@ export function BunnyCharacter({ bites, won, onGhostAnimationComplete, onWinAnim
         if (onWinAnimationCompleteRef.current) {
           onWinAnimationCompleteRef.current();
         }
-      }, 3200));
+      }, 2700));
+      // hop off after dance + brief pause
+      timers.push(setTimeout(() => setExiting(true), 3000));
+      timers.push(setTimeout(() => {
+        if (onExitedRef.current) {
+          onExitedRef.current();
+        }
+      }, 3800));
       return () => { timers.forEach(clearTimeout); };
     }
   }, [won]);
@@ -137,7 +153,11 @@ export function BunnyCharacter({ bites, won, onGhostAnimationComplete, onWinAnim
     <div
       className="select-none relative w-full max-w-[210px] md:max-w-[280px] mx-auto"
       style={{
-        animation: animating ? 'bunnyShake 0.4s ease' : undefined,
+        animation: exiting
+          ? 'bunnyHopOff 0.8s ease-in forwards'
+          : animating
+            ? 'bunnyShake 0.4s ease'
+            : undefined,
       }}
     >
       <svg
@@ -186,7 +206,7 @@ export function BunnyCharacter({ bites, won, onGhostAnimationComplete, onWinAnim
         </defs>
 
         {/* Ground shadow */}
-        <ellipse cx="100" cy="260" rx="52" ry="7" fill="#1A0800" opacity="0.12" />
+        <ellipse cx="100" cy="260" rx="52" ry="7" fill="#1A0800" opacity={exiting ? 0 : 0.12} style={{ transition: 'opacity 0.6s ease-in' }} />
 
         {/* Character group — all visible parts animate together on win */}
         <g
