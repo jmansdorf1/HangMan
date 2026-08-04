@@ -17,27 +17,22 @@ type WordLibrary = Record<Category, Record<Difficulty, string[]>>;
 
 const wordLibrary: WordLibrary = {
   Animals: {
-    // Easy (3-5 letters)
     easy: [
-      'BEAR', 'BIRD', 'CAT', 'DOG', 'DUCK', 'FISH', 'FROG', 'GOAT', 'GOOSE',
-      'HORSE', 'LION', 'MOOSE', 'MOUSE', 'PANDA', 'PIG', 'SHEEP', 'SNAKE',
-      'TIGER', 'WHALE', 'WOLF', 'ZEBRA', 'DEER', 'SEAL', 'CRAB', 'SWAN',
+      'RABBIT', 'BUNNY', 'BEAR', 'TIGER', 'LION', 'HORSE', 'ZEBRA', 'MONKEY',
+      'PANDA', 'OTTER', 'KOALA', 'BEAVER', 'KITTEN', 'PUPPY', 'GOOSE', 'DUCK',
+      'CHICKEN', 'ROOSTER', 'DONKEY', 'TURTLE',
     ],
-    // Medium (6-8 letters)
     medium: [
-      'BADGER', 'BEAVER', 'BUFFALO', 'CAMEL', 'COYOTE', 'DOLPHIN', 'DONKEY',
-      'FLAMINGO', 'GERBIL', 'GIRAFFE', 'GORILLA', 'HAMSTER', 'JAGUAR',
-      'LEMUR', 'LEOPARD', 'MONKEY', 'OCELOT', 'OPOSSUM', 'OSTRICH', 'OTTER',
-      'PENGUIN', 'PORCUPINE', 'RABBIT', 'RACCOON', 'RHINO', 'SALMON',
-      'SQUIRREL', 'TORTOISE', 'WALRUS', 'WEASEL', 'CHEETAH', 'PARROT',
-      'TURKEY', 'TURTLE', 'COBRA',
+      'FLAMINGO', 'PENGUIN', 'KANGAROO', 'HEDGEHOG', 'BUTTERFLY', 'WOODPECKER',
+      'BLUEBIRD', 'SQUIRREL', 'PORCUPINE', 'RACCOON', 'PELICAN', 'PEACOCK',
+      'LADYBUG', 'FIREFLY', 'CATERPILLAR', 'OCTOPUS', 'STARFISH', 'JELLYFISH',
+      'SEAHORSE', 'DOLPHIN',
     ],
-    // Hard (9+ letters)
     hard: [
-      'ALLIGATOR', 'ANTELOPE', 'BUTTERFLY', 'CROCODILE', 'DRAGONFLY',
-      'ELEPHANT', 'GRASSHOPPER', 'HIPPOPOTAMUS', 'HUMMINGBIRD', 'KANGAROO',
-      'LADYBUG', 'OCTOPUS', 'PLATYPUS', 'RHINOCEROS', 'SCORPION',
-      'SEAHORSE', 'STINGRAY', 'TARANTULA', 'WOODPECKER', 'CATERPILLAR',
+      'CHAMELEON', 'ARMADILLO', 'AXOLOTL', 'ORANGUTAN', 'NARWHAL', 'PLATYPUS',
+      'WOLVERINE', 'CROCODILE', 'ALLIGATOR', 'HIPPOPOTAMUS', 'CHIMPANZEE',
+      'DRAGONFLY', 'HUMMINGBIRD', 'BARRACUDA', 'CUTTLEFISH', 'KINGFISHER',
+      'MANTIS', 'OPOSSUM', 'WARTHOG', 'GAZELLE',
     ],
   },
 
