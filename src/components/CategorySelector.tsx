@@ -1,3 +1,14 @@
+import { PawPrint, Apple, PartyPopper, Sprout, Cake, Film, type LucideIcon } from 'lucide-react';
+
+const CATEGORY_ICONS: Record<string, LucideIcon> = {
+  Animals: PawPrint,
+  Food: Apple,
+  Holidays: PartyPopper,
+  Spring: Sprout,
+  Dessert: Cake,
+  Movies: Film,
+};
+
 interface Props {
   categories: string[];
   onSelect: (category: string) => void;
@@ -26,16 +37,21 @@ export function CategorySelector({ categories, onSelect, isLoading }: Props) {
         </div>
 
         <div className="grid grid-cols-2 gap-3 w-full">
-          {categories.map(category => (
-            <button
-              key={category}
-              onClick={() => onSelect(category)}
-              disabled={isLoading}
-              className="bg-gradient-to-br from-amber-50 to-amber-100 hover:from-amber-100 hover:to-amber-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed text-amber-900 font-bold py-3 px-4 rounded-2xl text-sm transition-all duration-150 shadow-md border border-amber-200"
-            >
-              {category}
-            </button>
-          ))}
+          {categories.map(category => {
+            const Icon = CATEGORY_ICONS[category] ?? PawPrint;
+            return (
+              <button
+                key={category}
+                onClick={() => onSelect(category)}
+                disabled={isLoading}
+                aria-label={category}
+                className="flex items-center justify-center gap-2 bg-gradient-to-br from-amber-50 to-amber-100 hover:from-amber-100 hover:to-amber-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed text-amber-900 font-bold py-3 px-4 rounded-2xl text-sm transition-all duration-150 shadow-md border border-amber-200"
+              >
+                <Icon className="w-4 h-4 shrink-0" aria-hidden="true" />
+                <span>{category}</span>
+              </button>
+            );
+          })}
         </div>
 
         {isLoading && (
