@@ -242,7 +242,7 @@ export default function App() {
             </div>
 
             {/* Bunny stage — fixed height to prevent layout shift */}
-            <div className="relative w-full" style={{ height: 'clamp(240px, 42vh, 340px)' }}>
+            <div className="relative w-full flex flex-col justify-end" style={{ height: 'clamp(240px, 42vh, 340px)', paddingBottom: '12px' }}>
               {state.isLoading ? (
                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 md:gap-3">
                   <div

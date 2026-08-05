@@ -150,7 +150,7 @@ export function BunnyCharacter({ bites, won, onGhostAnimationComplete, onWinAnim
 
   return (
     <div
-      className="select-none relative w-full max-w-[210px] md:max-w-[280px] mx-auto"
+      className="select-none relative w-full mx-auto flex justify-center"
       style={{
         animation: exiting
           ? (bites === 8 ? 'ghostFloatAway 1.2s ease-in forwards' : 'bunnyHopOff 0.8s ease-in forwards')
@@ -162,7 +162,11 @@ export function BunnyCharacter({ bites, won, onGhostAnimationComplete, onWinAnim
       <svg
         viewBox="0 0 200 270"
         xmlns="http://www.w3.org/2000/svg"
-        className="w-full h-auto"
+        className="w-auto h-auto max-w-[210px] md:max-w-[280px]"
+        style={{
+          maxHeight: 'calc(clamp(240px, 42vh, 340px) - 12px)',
+          aspectRatio: '200 / 270',
+        }}
       >
         <defs>
           <mask id="leftEyeMask">
