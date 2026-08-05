@@ -145,6 +145,8 @@ export function useGame(selectedCategory: Category, selectedDifficulty: Difficul
 
   // Bunnies Saved counter - session only, not persisted
   const [bunniesSaved, setBunniesSaved] = useState(0);
+  // Total game attempts - session only, not persisted
+  const [totalAttempts, setTotalAttempts] = useState(0);
 
   // Track recent words with timestamps - persists across sessions
   const recentWordsRef = useRef<Map<string, number>>(getRecentWords());
@@ -155,6 +157,7 @@ export function useGame(selectedCategory: Category, selectedDifficulty: Difficul
 
   const startNewGame = useCallback(async () => {
     setState(prev => ({ ...prev, isLoading: true }));
+    setTotalAttempts(prev => prev + 1);
 
     // Get the previous word before we start a new one
     const previousWord = previousWordRef.current;
@@ -236,6 +239,7 @@ export function useGame(selectedCategory: Category, selectedDifficulty: Difficul
   return {
     state,
     bunniesSaved,
+    totalAttempts,
     correctLetters,
     wrongLetters,
     guessLetter,

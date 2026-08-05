@@ -45,7 +45,7 @@ export default function App() {
   const [showParticles, setShowParticles] = useState(false);
   const audioPlayedRef = useRef(false);
 
-  const { state, bunniesSaved, correctLetters, wrongLetters, guessLetter, startNewGame, incrementBunniesSaved } = useGame(
+  const { state, bunniesSaved, totalAttempts, correctLetters, wrongLetters, guessLetter, startNewGame, incrementBunniesSaved } = useGame(
     selectedCategory,
     selectedDifficulty
   );
@@ -138,7 +138,7 @@ export default function App() {
             >
               <span className="text-base md:text-lg">🐰</span>
               <div className="flex flex-col items-center">
-                <span className="text-base md:text-lg font-extrabold leading-none">{bunniesSaved}</span>
+                <span className="text-base md:text-lg font-extrabold leading-none">{bunniesSaved} / {totalAttempts}</span>
                 <span className="text-[10px] md:text-xs font-semibold uppercase tracking-wide opacity-80">saved</span>
               </div>
             </div>
