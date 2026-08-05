@@ -4,6 +4,7 @@ import { BunnyCharacter } from './components/BunnyCharacter';
 import { StageParticles } from './components/StageParticles';
 import { WordDisplay } from './components/WordDisplay';
 import { LetterKeyboard } from './components/LetterKeyboard';
+import { CategoryDropdown } from './components/CategoryDropdown';
 import { unlockAudio, playWinCue, playLossCue } from './lib/audio';
 import type { Category, Difficulty } from './hooks/useGame';
 
@@ -146,22 +147,15 @@ export default function App() {
 
           {/* Category dropdown */}
           <div className="flex items-center gap-2 mb-2 md:mb-3">
-            <label htmlFor="category" className="text-[10px] md:text-xs font-semibold text-amber-700 uppercase tracking-wider">
+            <span className="text-[10px] md:text-xs font-semibold text-amber-700 uppercase tracking-wider">
               Category:
-            </label>
-            <select
-              id="category"
+            </span>
+            <CategoryDropdown
+              categories={CATEGORIES as unknown as string[]}
               value={selectedCategory}
-              onChange={(e) => handleCategoryChange(e.target.value)}
+              onChange={handleCategoryChange}
               disabled={state.status !== 'playing' && !showEndMessage}
-              className="bg-white bg-opacity-70 border border-amber-200 text-amber-900 text-xs md:text-sm font-semibold rounded-lg md:rounded-xl px-2 md:px-3 py-1 md:py-1.5 shadow-sm cursor-pointer hover:bg-opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex-1"
-            >
-              {CATEGORIES.map(cat => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-            </select>
+            />
           </div>
 
           {/* Difficulty selector - segmented buttons */}
