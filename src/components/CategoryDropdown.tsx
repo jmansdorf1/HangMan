@@ -6,8 +6,8 @@ const CATEGORY_ICONS: Record<string, LucideIcon> = {
   Food: Apple,
   Holidays: PartyPopper,
   Spring: Sprout,
-  Dessert: Cake,
-  Movies: Film,
+  Desserts: Cake,
+  Entertainment: Film,
 };
 
 interface Props {
