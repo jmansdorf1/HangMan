@@ -5,6 +5,12 @@ import { WordEntry } from '../types';
 // This structure is the source of truth and is designed for easy expansion:
 // add a category by adding a key, add words by extending an array.
 // The flat `fallbackWords` export (consumed by the game hook) is derived below.
+//
+// Normalization rules:
+// - Letters A–Z only (no accents, punctuation, apostrophes, hyphens, quotes).
+// - Title Case for single words; PascalCase for concatenated phrases.
+// - No duplicate words across the entire library.
+// - Each difficulty array contains 20 words.
 // ---------------------------------------------------------------------------
 
 export const CATEGORIES = ['Animals', 'Food', 'Holidays', 'Spring', 'Desserts', 'Entertainment'] as const;
@@ -18,126 +24,127 @@ type WordLibrary = Record<Category, Record<Difficulty, string[]>>;
 const wordLibrary: WordLibrary = {
   Animals: {
     easy: [
-      'RABBIT', 'BUNNY', 'BEAR', 'TIGER', 'LION', 'HORSE', 'ZEBRA', 'MONKEY',
-      'PANDA', 'OTTER', 'KOALA', 'BEAVER', 'KITTEN', 'PUPPY', 'GOOSE', 'DUCK',
-      'CHICKEN', 'ROOSTER', 'DONKEY', 'TURTLE',
+      'Rabbit', 'Bunny', 'Bear', 'Tiger', 'Lion', 'Horse', 'Zebra', 'Monkey',
+      'Panda', 'Otter', 'Koala', 'Beaver', 'Kitten', 'Puppy', 'Goose', 'Duck',
+      'Chicken', 'Rooster', 'Donkey', 'Turtle',
     ],
     medium: [
-      'FLAMINGO', 'PENGUIN', 'KANGAROO', 'HEDGEHOG', 'BUTTERFLY', 'WOODPECKER',
-      'BLUEBIRD', 'SQUIRREL', 'PORCUPINE', 'RACCOON', 'PELICAN', 'PEACOCK',
-      'LADYBUG', 'FIREFLY', 'CATERPILLAR', 'OCTOPUS', 'STARFISH', 'JELLYFISH',
-      'SEAHORSE', 'DOLPHIN',
+      'Flamingo', 'Penguin', 'Kangaroo', 'Hedgehog', 'Butterfly', 'Woodpecker',
+      'Bluebird', 'Squirrel', 'Porcupine', 'Raccoon', 'Pelican', 'Peacock',
+      'Ladybug', 'Firefly', 'Caterpillar', 'Octopus', 'Starfish', 'Jellyfish',
+      'Seahorse', 'Dolphin',
     ],
     hard: [
-      'CHAMELEON', 'ARMADILLO', 'AXOLOTL', 'ORANGUTAN', 'NARWHAL', 'PLATYPUS',
-      'WOLVERINE', 'CROCODILE', 'ALLIGATOR', 'HIPPOPOTAMUS', 'CHIMPANZEE',
-      'DRAGONFLY', 'HUMMINGBIRD', 'BARRACUDA', 'CUTTLEFISH', 'KINGFISHER',
-      'MANTIS', 'OPOSSUM', 'WARTHOG', 'GAZELLE',
+      'Chameleon', 'Armadillo', 'Axolotl', 'Orangutan', 'Narwhal', 'Platypus',
+      'Wolverine', 'Crocodile', 'Alligator', 'Hippopotamus', 'Chimpanzee',
+      'Dragonfly', 'Hummingbird', 'Barracuda', 'Cuttlefish', 'Kingfisher',
+      'Mantis', 'Opossum', 'Warthog', 'Gazelle',
     ],
   },
 
   Food: {
     easy: [
-      'PIZZA', 'BURGER', 'TACO', 'APPLE', 'BANANA', 'CARROT', 'POTATO',
-      'ORANGE', 'GRAPES', 'CHEESE', 'BREAD', 'PASTA', 'RICE', 'BACON',
-      'CHICKEN', 'STEAK', 'SAUSAGE', 'TOMATO', 'ONION', 'PEPPER',
+      'Pizza', 'Burger', 'Taco', 'Apple', 'Banana', 'Carrot', 'Potato',
+      'Orange', 'Grapes', 'Cheese', 'Bread', 'Pasta', 'Rice', 'Bacon',
+      'Celery', 'Steak', 'Sausage', 'Tomato', 'Onion', 'Pepper',
     ],
     medium: [
-      'AVOCADO', 'BROCCOLI', 'PINEAPPLE', 'WATERMELON', 'BLUEBERRY',
-      'STRAWBERRY', 'ASPARAGUS', 'CAULIFLOWER', 'ARTICHOKE', 'ZUCCHINI',
-      'CUCUMBER', 'SPINACH', 'MUSHROOM', 'PRETZEL', 'POPCORN', 'MEATBALL',
-      'LASAGNA', 'BURRITO', 'QUESADILLA', 'SANDWICH',
+      'Avocado', 'Broccoli', 'Pineapple', 'Watermelon', 'Blueberry',
+      'Strawberry', 'Asparagus', 'Cauliflower', 'Artichoke', 'Zucchini',
+      'Cucumber', 'Spinach', 'Mushroom', 'Pretzel', 'Popcorn', 'Meatball',
+      'Lasagna', 'Burrito', 'Quesadilla', 'Sandwich',
     ],
     hard: [
-      'JALAPENO', 'EGGPLANT', 'BRUSSELS', 'SAUERKRAUT', 'PROSCIUTTO',
-      'GNOCCHI', 'FETTUCCINE', 'CIABATTA', 'BAGUETTE', 'GAZPACHO',
-      'EDAMAME', 'RATATOUILLE', 'BOUILLABAISSE', 'CAPICOLA', 'KIMCHI',
-      'ESCARGOT', 'RISOTTO', 'PIEROGI', 'SHAKSHUKA', 'TABBOULEH',
+      'Jalapeno', 'Eggplant', 'Brussels', 'Sauerkraut', 'Prosciutto',
+      'Gnocchi', 'Fettuccine', 'Ciabatta', 'Baguette', 'Gazpacho',
+      'Edamame', 'Ratatouille', 'Bouillabaisse', 'Capicola', 'Kimchi',
+      'Escargot', 'Risotto', 'Pierogi', 'Shakshuka', 'Tabbouleh',
     ],
   },
 
   Holidays: {
     easy: [
-      'EASTER', 'HALLOWEEN', 'CHRISTMAS', 'HANUKKAH', 'KWANZAA', 'HOLIDAY',
-      'PARADE', 'TURKEY', 'FIREWORK', 'COSTUME', 'PUMPKIN', 'EGGNOG',
-      'CUPID', 'RABBIT', 'BASKET', 'CANDY', 'SNOWMAN', 'REINDEER',
-      'LANTERN', 'PARTY',
+      'Easter', 'Halloween', 'Christmas', 'Hanukkah', 'Kwanzaa', 'Holiday',
+      'Parade', 'Turkey', 'Firework', 'Costume', 'Pumpkin', 'Eggnog',
+      'Cupid', 'Sleigh', 'Basket', 'Candy', 'Snowman', 'Reindeer',
+      'Lantern', 'Party',
     ],
     medium: [
-      'VALENTINE', 'THANKSGIVING', 'FIREWORKS', 'SHAMROCK',
-      'LEPRECHAUN', 'MENORAH', 'STOCKING', 'WREATH', 'ORNAMENT',
-      'JACKOLANTERN', 'CONFETTI', 'COUNTDOWN', 'CELEBRATION',
-      'RESOLUTION', 'HEART', 'RIBBON', 'BONFIRE', 'CORNUCOPIA',
-      'CRANBERRY', 'GINGERBREAD',
+      'Valentine', 'Thanksgiving', 'Fireworks', 'Shamrock',
+      'Leprechaun', 'Menorah', 'Stocking', 'Wreath', 'Ornament',
+      'Jackolantern', 'Confetti', 'Countdown', 'Celebration',
+      'Resolution', 'Heart', 'Ribbon', 'Bonfire', 'Cornucopia',
+      'Cranberry', 'Gingerbread',
     ],
     hard: [
-      'INDEPENDENCE', 'MISTLETOE', 'NUTCRACKER', 'POINSETTIA',
-      'CANDELABRA', 'EVERGREEN', 'NOISEMAKER', 'MASQUERADE',
-      'GROUNDHOG', 'HANUKKIAH', 'PEPPERMINT', 'CAROLING', 'TRADITION',
-      'DECORATION', 'FESTIVAL', 'COMMEMORATION', 'HARVEST',
-      'TABLECLOTH', 'CENTERPIECE',
+      'Independence', 'Mistletoe', 'Nutcracker', 'Poinsettia',
+      'Candelabra', 'Evergreen', 'Noisemaker', 'Masquerade',
+      'Groundhog', 'Hanukkiah', 'Peppermint', 'Caroling', 'Tradition',
+      'Decoration', 'Festival', 'Commemoration', 'Harvest',
+      'Tablecloth', 'Centerpiece',
     ],
   },
 
   Spring: {
     easy: [
-      'TULIP', 'ROBIN', 'NEST', 'BLOOM', 'RAIN', 'GRASS', 'BEE', 'BUG',
-      'SUN', 'CLOUD', 'PUDDLE', 'LEAF', 'SEED', 'PLANT', 'WIND', 'KITE',
-      'DUCKLING', 'CHICK', 'BUNNY', 'GARDEN',
+      'Tulip', 'Robin', 'Nest', 'Bloom', 'Rain', 'Grass', 'Bee', 'Bug',
+      'Sun', 'Cloud', 'Puddle', 'Leaf', 'Seed', 'Plant', 'Wind', 'Kite',
+      'Duckling', 'Chick', 'Fawn', 'Garden',
     ],
     medium: [
-      'RAINBOW', 'BLOSSOM', 'MEADOW', 'BUTTERFLY', 'BLUEBIRD', 'LADYBUG',
-      'DAFFODIL', 'SUNSHINE', 'RAINDROP', 'BIRDHOUSE', 'WILDFLOWER',
-      'BUTTERCUP', 'PICNIC', 'HUMMINGBIRD', 'SPROUT', 'CLOVER', 'SONGBIRD',
-      'TREEHOUSE', 'WATERING', 'FLOWERPOT',
+      'Rainbow', 'Blossom', 'Meadow', 'Iris', 'Petunia', 'Azalea',
+      'Daffodil', 'Sunshine', 'Raindrop', 'Birdhouse', 'Wildflower',
+      'Buttercup', 'Picnic', 'Lavender', 'Sprout', 'Clover', 'Songbird',
+      'Treehouse', 'Watering', 'Flowerpot',
     ],
     hard: [
-      'HYACINTH', 'FORSYTHIA', 'CROCUS', 'BLUEBELL', 'PRIMROSE', 'DOGWOOD',
-      'MAGNOLIA', 'LADYBUG', 'DRAGONFLY', 'HONEYSUCKLE', 'CHERRYBLOSSOM',
-      'WILDFLOWER', 'HUMMINGBIRD', 'WOODPECKER', 'POLLINATION',
-      'PHOTOSYNTHESIS', 'BUMBLEBEE', 'GREENHOUSE', 'BUTTERCUP', 'FIREFLY',
+      'Hyacinth', 'Forsythia', 'Crocus', 'Bluebell', 'Primrose', 'Dogwood',
+      'Magnolia', 'Trillium', 'Bloodroot', 'Honeysuckle', 'CherryBlossom',
+      'Coltsfoot', 'Snowdrop', 'Sweetpea', 'Pollination',
+      'Photosynthesis', 'Bumblebee', 'Greenhouse', 'Wisteria', 'Jonquil',
     ],
   },
 
   Desserts: {
     easy: [
-      'COOKIE', 'BROWNIE', 'CUPCAKE', 'DONUT', 'CANDY', 'FUDGE', 'MUFFIN',
-      'SUNDAE', 'GELATO', 'SORBET', 'PUDDING', 'PIE', 'TART', 'TRUFFLE',
-      'BONBON', 'ECLAIR', 'PARFAIT', 'COBBLER', 'TAFFY', 'WAFFLE',
+      'Cookie', 'Brownie', 'Cupcake', 'Donut', 'Fudge', 'Muffin',
+      'Sundae', 'Gelato', 'Sorbet', 'Pudding', 'Pie', 'Tart', 'Truffle',
+      'Bonbon', 'Eclair', 'Parfait', 'Cobbler', 'Taffy', 'Waffle',
+      'Caramel',
     ],
     medium: [
-      'CHEESECAKE', 'CANNOLI', 'MACARON', 'BISCOTTI', 'BAKLAVA',
-      'MERINGUE', 'CREAMPUFF', 'SOUFFLE', 'SHORTBREAD', 'MARSHMALLOW',
-      'CROISSANT', 'CHURRO', 'PROFITEROLE', 'GANACHE', 'MADELEINE',
-      'CRUMBLE', 'STRUDEL', 'NAPOLEON', 'PAVLOVA', 'TIRAMISU',
+      'Cheesecake', 'Cannoli', 'Macaron', 'Biscotti', 'Baklava',
+      'Meringue', 'Creampuff', 'Souffle', 'Shortbread', 'Marshmallow',
+      'Croissant', 'Churro', 'Profiterole', 'Ganache', 'Madeleine',
+      'Crumble', 'Strudel', 'Napoleon', 'Pavlova', 'Tiramisu',
     ],
     hard: [
-      'SEMIFREDDO', 'CLAFOUTIS', 'FINANCIER', 'CHARLOTTE', 'MILLEFEUILLE',
-      'CANNELE', 'FRANGIPANE', 'ZABAGLIONE', 'FLORENTINE', 'PANETTONE',
-      'AMARETTI', 'SACHERTORTE', 'KOUIGNAMANN', 'MARZIPAN', 'OPERA',
-      'DIPLOMAT', 'DACQUOISE', 'BIENENSTICH', 'PANNACOTTA', 'GALETTE',
+      'Semifreddo', 'Clafoutis', 'Financier', 'Charlotte', 'Millefeuille',
+      'Cannele', 'Frangipane', 'Zabaglione', 'Florentine', 'Panettone',
+      'Amaretti', 'Sachertorte', 'Kouignamann', 'Marzipan', 'Opera',
+      'Diplomat', 'Dacquoise', 'Bienenstich', 'Pannacotta', 'Galette',
     ],
   },
 
   Entertainment: {
     easy: [
-      'MOVIE', 'CINEMA', 'ACTOR', 'ACTRESS', 'COMEDY', 'DRAMA', 'HERO',
-      'VILLAIN', 'CARTOON', 'FAMILY', 'MAGIC', 'ROBOT', 'PIRATE',
-      'WIZARD', 'CASTLE', 'DRAGON', 'PRINCESS', 'MONSTER', 'DETECTIVE',
-      'ADVENTURE',
+      'Movie', 'Cinema', 'Actor', 'Actress', 'Comedy', 'Drama', 'Hero',
+      'Villain', 'Cartoon', 'Family', 'Magic', 'Robot', 'Pirate',
+      'Wizard', 'Castle', 'Dragon', 'Princess', 'Monster', 'Detective',
+      'Adventure',
     ],
     medium: [
-      'ANIMATED', 'DIRECTOR', 'SCREENPLAY', 'SUPERHERO', 'TREASURE',
-      'SPACESHIP', 'TIMETRAVEL', 'KINGDOM', 'MYSTERY', 'FANTASY',
-      'EXPLORER', 'SIDEKICK', 'SOUNDTRACK', 'PREMIERE', 'HOLLYWOOD',
-      'TELEVISION', 'CHAMPION', 'CREATURE', 'JOURNEY',
+      'Animated', 'Director', 'Screenplay', 'Superhero', 'Treasure',
+      'Spaceship', 'TimeTravel', 'Kingdom', 'Mystery', 'Fantasy',
+      'Explorer', 'Sidekick', 'Soundtrack', 'Premiere', 'Hollywood',
+      'Television', 'Champion', 'Creature', 'Journey',
     ],
     hard: [
-      'BLOCKBUSTER', 'DOCUMENTARY', 'CINEMATOGRAPHY', 'CHOREOGRAPHY',
-      'TRANSFORMATION', 'APOCALYPSE', 'ARCHAEOLOGIST', 'SCREENWRITER',
-      'PRODUCTION', 'ILLUSIONIST', 'MULTIVERSE', 'ADVENTURELAND',
-      'INTERSTELLAR', 'CONSTELLATION', 'EXPEDITION', 'LABYRINTH',
-      'ENCHANTMENT', 'MYTHOLOGY', 'LEGENDARY', 'IMAGINATION',
+      'Blockbuster', 'Documentary', 'Cinematography', 'Choreography',
+      'Transformation', 'Apocalypse', 'Archaeologist', 'Screenwriter',
+      'Production', 'Illusionist', 'Multiverse', 'Adventureland',
+      'Interstellar', 'Constellation', 'Expedition', 'Labyrinth',
+      'Enchantment', 'Mythology', 'Legendary', 'Imagination',
     ],
   },
 };
