@@ -76,11 +76,11 @@ export default function App() {
     }
     // Show particles during the empty pause
     setShowParticles(true);
-    // After particles drift, fade in the end message
+    // After pieces fall and accumulate, fade in the end message
     setTimeout(() => {
       setShowParticles(false);
       setShowEndMessage(true);
-    }, 1400);
+    }, 2700);
   };
 
   const handleWinAnimationComplete = useCallback(() => {

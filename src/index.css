@@ -200,20 +200,29 @@ html, body, #root {
   }
 }
 
-@keyframes particleDrift {
+@keyframes pieceFall {
   0% {
     opacity: 0;
-    transform: translateY(0) translateX(0) rotate(0deg);
+    transform: translateY(0) translateX(0);
   }
-  10% {
+  8% {
     opacity: 1;
   }
-  90% {
+  85% {
     opacity: 1;
   }
   100% {
-    opacity: 0;
-    transform: translateY(var(--drift-distance, 200px)) translateX(var(--drift-x, 0px)) rotate(var(--drift-rotate, 360deg));
+    opacity: 1;
+    transform: translateY(var(--fall-distance, 300px)) translateX(var(--drift-x, 0px));
+  }
+}
+
+@keyframes pieceSpin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(var(--drift-rotate, 360deg));
   }
 }
 
