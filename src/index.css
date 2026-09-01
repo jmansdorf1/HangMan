@@ -205,15 +205,12 @@ html, body, #root {
     opacity: 0;
     transform: translateY(0) translateX(0);
   }
-  8% {
-    opacity: 1;
-  }
-  85% {
+  6% {
     opacity: 1;
   }
   100% {
     opacity: 1;
-    transform: translateY(var(--fall-distance, 300px)) translateX(var(--drift-x, 0px));
+    transform: translateY(var(--fall-px, 280px)) translateX(var(--drift-x, 0px));
   }
 }
 
@@ -222,7 +219,7 @@ html, body, #root {
     transform: rotate(0deg);
   }
   100% {
-    transform: rotate(var(--drift-rotate, 360deg));
+    transform: rotate(var(--spin-deg, 360deg));
   }
 }
 

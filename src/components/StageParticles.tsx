@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useRef, useState, useEffect } from 'react';
 
 type PieceShape =
   | 'chocolateChunk'
@@ -15,14 +15,14 @@ type PieceShape =
 interface Piece {
   id: number;
   shape: PieceShape;
-  x: number;
-  delay: number;
-  duration: number;
-  driftX: number;
-  rotate: number;
-  size: number;
+  x: number;        // percent across container
+  delay: number;    // ms before falling starts
+  duration: number; // ms fall time
+  driftX: number;   // px horizontal drift
+  rotate: number;   // deg final rotation
+  size: number;     // px
   color: string;
-  settleDelay: number;
+  pileOffset: number; // px above bottom — creates stacking
 }
 
 const CONFETTI_COLORS = ['#FF6B9D', '#FFD93D', '#6BCB77', '#4D96FF', '#FF8E3C', '#C780FF'];
@@ -45,13 +45,13 @@ function buildPieces(kind: 'loss' | 'win'): Piece[] {
       id: i,
       shape: lossShapes[i % lossShapes.length],
       x: rand(5, 88),
-      delay: rand(0, 600),
-      duration: rand(1400, 2400),
+      delay: rand(100, 700),
+      duration: rand(1100, 1800),
       driftX: rand(-25, 25),
       rotate: rand(-60, 60),
       size: rand(22, 42),
       color: CHOC_COLORS[Math.floor(Math.random() * CHOC_COLORS.length)],
-      settleDelay: rand(0, 400),
+      pileOffset: rand(0, 55),
     }));
   }
 
@@ -66,13 +66,13 @@ function buildPieces(kind: 'loss' | 'win'): Piece[] {
     id: i,
     shape: winShapes[i % winShapes.length],
     x: rand(3, 90),
-    delay: rand(0, 800),
-    duration: rand(1300, 2200),
+    delay: rand(100, 900),
+    duration: rand(1000, 1700),
     driftX: rand(-30, 30),
     rotate: rand(-180, 180),
     size: rand(18, 38),
     color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
-    settleDelay: rand(0, 500),
+    pileOffset: rand(0, 50),
   }));
 }
 
@@ -225,36 +225,61 @@ interface Props {
 }
 
 export function StageParticles({ kind }: Props) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerHeight, setContainerHeight] = useState(320);
   const pieces = useMemo(() => buildPieces(kind), [kind]);
 
+  useEffect(() => {
+    if (containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      setContainerHeight(rect.height);
+    }
+  }, []);
+
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {pieces.map((p) => (
-        <div
-          key={p.id}
-          style={{
-            position: 'absolute',
-            left: `${p.x}%`,
-            top: '2%',
-            animation: `pieceFall ${p.duration}ms cubic-bezier(0.35, 0.05, 0.5, 1) forwards`,
-            animationDelay: `${p.delay}ms`,
-            '--fall-distance': 'calc(100% - 4px)',
-            '--drift-x': `${p.driftX}px`,
-            '--drift-rotate': `${p.rotate}deg`,
-            '--settle-delay': `${p.settleDelay}ms`,
-          } as React.CSSProperties}
-        >
+    <div ref={containerRef} className="absolute inset-0 overflow-hidden pointer-events-none">
+      {pieces.map((p) => {
+    const pieceHeight = p.shape === 'earFragment'
+      ? p.size * 1.4
+      : p.shape === 'bodyChunk'
+        ? p.size * 0.85
+        : p.shape === 'irregularShard'
+          ? p.size * 0.7
+          : p.shape === 'chocolateBar'
+            ? p.size * 0.7
+            : p.shape === 'confetti'
+              ? p.size * 0.45
+              : p.shape === 'wrappedCandy'
+                ? p.size * 0.7
+                : p.size;
+    const fallPx = containerHeight - pieceHeight - p.pileOffset;
+
+    return (
           <div
+            key={p.id}
             style={{
-              animation: `pieceSpin ${p.duration * 0.7}ms ease-out forwards`,
+              position: 'absolute',
+              left: `${p.x}%`,
+              top: 0,
+              animation: `pieceFall ${p.duration}ms cubic-bezier(0.4, 0.0, 0.6, 1) forwards`,
               animationDelay: `${p.delay}ms`,
-              transformOrigin: 'center',
-            }}
+              '--fall-px': `${Math.max(fallPx, 0)}px`,
+              '--drift-x': `${p.driftX}px`,
+            } as React.CSSProperties}
           >
-            <PieceSvg piece={p} />
+            <div
+              style={{
+                animation: `pieceSpin ${p.duration}ms ease-out forwards`,
+                animationDelay: `${p.delay}ms`,
+                transformOrigin: 'center',
+                '--spin-deg': `${p.rotate}deg`,
+              } as React.CSSProperties}
+            >
+              <PieceSvg piece={p} />
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
