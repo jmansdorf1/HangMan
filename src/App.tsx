@@ -32,10 +32,10 @@ function getInitialDifficulty(): Difficulty {
 }
 
 // Difficulty display config
-const DIFFICULTY_CONFIG: Record<Difficulty, { label: string; emoji: string }> = {
-  easy: { label: 'Easy', emoji: '🥕' },
-  medium: { label: 'Medium', emoji: '🥕🥕' },
-  hard: { label: 'Hard', emoji: '🥕🥕🥕' },
+const DIFFICULTY_CONFIG: Record<Difficulty, { label: string; shortLabel: string; emoji: string }> = {
+  easy: { label: 'Easy', shortLabel: 'Easy', emoji: '🥕' },
+  medium: { label: 'Medium', shortLabel: 'Med', emoji: '🥕🥕' },
+  hard: { label: 'Hard', shortLabel: 'Hard', emoji: '🥕🥕🥕' },
 };
 
 export default function App() {
@@ -188,7 +188,7 @@ export default function App() {
                   >
                     <span className="mr-1">{config.emoji}</span>
                     <span className="hidden sm:inline">{config.label}</span>
-                    <span className="sm:hidden">{config.label.charAt(0)}</span>
+                    <span className="sm:hidden">{config.shortLabel}</span>
                   </button>
                 );
               })}
