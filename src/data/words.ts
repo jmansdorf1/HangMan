@@ -10,7 +10,10 @@ import { WordEntry } from '../types';
 // - Letters A–Z only (no accents, punctuation, apostrophes, hyphens, quotes).
 // - Title Case for single words; PascalCase for concatenated phrases.
 // - No duplicate words across the entire library.
-// - Each difficulty array contains 20 words.
+//
+// Difficulty is based on vocabulary frequency, spelling familiarity, letter
+// rarity (J/Q/V/X/Y/Z are harder), and letter-combination patterns — not
+// word length alone.
 // ---------------------------------------------------------------------------
 
 export const CATEGORIES = ['Animals', 'Food', 'Holidays', 'Spring', 'Desserts', 'Entertainment'] as const;
@@ -30,15 +33,15 @@ const wordLibrary: WordLibrary = {
     ],
     medium: [
       'Flamingo', 'Penguin', 'Kangaroo', 'Hedgehog', 'Butterfly', 'Woodpecker',
-      'Bluebird', 'Squirrel', 'Porcupine', 'Raccoon', 'Pelican', 'Peacock',
+      'Bluebird', 'Porcupine', 'Raccoon', 'Pelican', 'Peacock',
       'Ladybug', 'Firefly', 'Caterpillar', 'Octopus', 'Starfish', 'Jellyfish',
-      'Seahorse', 'Dolphin',
+      'Seahorse', 'Dolphin', 'Dragonfly',
     ],
     hard: [
       'Chameleon', 'Armadillo', 'Axolotl', 'Orangutan', 'Narwhal', 'Platypus',
       'Wolverine', 'Crocodile', 'Alligator', 'Hippopotamus', 'Chimpanzee',
-      'Dragonfly', 'Hummingbird', 'Barracuda', 'Cuttlefish', 'Kingfisher',
-      'Mantis', 'Opossum', 'Warthog', 'Gazelle',
+      'Hummingbird', 'Barracuda', 'Cuttlefish', 'Kingfisher',
+      'Mantis', 'Opossum', 'Warthog', 'Gazelle', 'Squirrel',
     ],
   },
 
@@ -52,35 +55,36 @@ const wordLibrary: WordLibrary = {
       'Avocado', 'Broccoli', 'Pineapple', 'Watermelon', 'Blueberry',
       'Strawberry', 'Asparagus', 'Cauliflower', 'Artichoke', 'Zucchini',
       'Cucumber', 'Spinach', 'Mushroom', 'Pretzel', 'Popcorn', 'Meatball',
-      'Lasagna', 'Burrito', 'Quesadilla', 'Sandwich',
+      'Lasagna', 'Burrito', 'Sandwich', 'Eggplant',
     ],
     hard: [
-      'Jalapeno', 'Eggplant', 'Brussels', 'Sauerkraut', 'Prosciutto',
+      'Jalapeno', 'Sauerkraut', 'Prosciutto',
       'Gnocchi', 'Fettuccine', 'Ciabatta', 'Baguette', 'Gazpacho',
       'Edamame', 'Ratatouille', 'Bouillabaisse', 'Capicola', 'Kimchi',
       'Escargot', 'Risotto', 'Pierogi', 'Shakshuka', 'Tabbouleh',
+      'Brussels', 'Quesadilla',
     ],
   },
 
   Holidays: {
     easy: [
-      'Easter', 'Halloween', 'Christmas', 'Hanukkah', 'Kwanzaa', 'Holiday',
+      'Easter', 'Halloween', 'Christmas', 'Hanukkah', 'Holiday',
       'Parade', 'Turkey', 'Firework', 'Costume', 'Pumpkin', 'Eggnog',
       'Cupid', 'Sleigh', 'Basket', 'Candy', 'Snowman', 'Reindeer',
-      'Lantern', 'Party',
+      'Lantern', 'Party', 'Heart',
     ],
     medium: [
       'Valentine', 'Thanksgiving', 'Fireworks', 'Shamrock',
       'Leprechaun', 'Menorah', 'Stocking', 'Wreath', 'Ornament',
       'Jackolantern', 'Confetti', 'Countdown', 'Celebration',
-      'Resolution', 'Heart', 'Ribbon', 'Bonfire', 'Cornucopia',
-      'Cranberry', 'Gingerbread',
+      'Resolution', 'Ribbon', 'Bonfire', 'Cornucopia',
+      'Cranberry', 'Gingerbread', 'Kwanzaa', 'Harvest',
     ],
     hard: [
       'Independence', 'Mistletoe', 'Nutcracker', 'Poinsettia',
       'Candelabra', 'Evergreen', 'Noisemaker', 'Masquerade',
       'Groundhog', 'Hanukkiah', 'Peppermint', 'Caroling', 'Tradition',
-      'Decoration', 'Festival', 'Commemoration', 'Harvest',
+      'Decoration', 'Festival', 'Commemoration',
       'Tablecloth', 'Centerpiece',
     ],
   },
@@ -117,11 +121,12 @@ const wordLibrary: WordLibrary = {
       'Meringue', 'Creampuff', 'Souffle', 'Shortbread', 'Marshmallow',
       'Croissant', 'Churro', 'Profiterole', 'Ganache', 'Madeleine',
       'Crumble', 'Strudel', 'Napoleon', 'Pavlova', 'Tiramisu',
+      'Opera',
     ],
     hard: [
       'Semifreddo', 'Clafoutis', 'Financier', 'Charlotte', 'Millefeuille',
       'Cannele', 'Frangipane', 'Zabaglione', 'Florentine', 'Panettone',
-      'Amaretti', 'Sachertorte', 'Kouignamann', 'Marzipan', 'Opera',
+      'Amaretti', 'Sachertorte', 'Kouignamann', 'Marzipan',
       'Diplomat', 'Dacquoise', 'Bienenstich', 'Pannacotta', 'Galette',
     ],
   },
