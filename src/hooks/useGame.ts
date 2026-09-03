@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { playChomp } from '../lib/audio';
 import { fallbackWords, getWordsForDifficulty, CATEGORIES, DIFFICULTIES } from '../data/words';
