@@ -40,8 +40,8 @@ const wordLibrary: WordLibrary = {
     hard: [
       'Chameleon', 'Armadillo', 'Axolotl', 'Orangutan', 'Narwhal', 'Platypus',
       'Wolverine', 'Crocodile', 'Alligator', 'Hippopotamus', 'Chimpanzee',
-      'Hummingbird', 'Barracuda', 'Cuttlefish', 'Kingfisher',
-      'Mantis', 'Opossum', 'Warthog', 'Gazelle', 'Squirrel',
+      'Hummingbird', 'Quokka', 'Quail', 'Kingfisher',
+      'Mantis', 'Opossum', 'Lynx', 'Gazelle', 'Squirrel',
     ],
   },
 
@@ -60,9 +60,9 @@ const wordLibrary: WordLibrary = {
     hard: [
       'Jalapeno', 'Sauerkraut', 'Prosciutto',
       'Gnocchi', 'Fettuccine', 'Ciabatta', 'Baguette', 'Gazpacho',
-      'Edamame', 'Ratatouille', 'Bouillabaisse', 'Capicola', 'Kimchi',
-      'Escargot', 'Risotto', 'Pierogi', 'Shakshuka', 'Tabbouleh',
-      'Brussels', 'Quesadilla',
+      'Edamame', 'Ratatouille', 'Pomegranate', 'Pistachio', 'Kimchi',
+      'Escargot', 'Risotto', 'Pierogi', 'Macadamia', 'Jujube',
+      'Kumquat', 'Quesadilla',
     ],
   },
 
@@ -84,8 +84,8 @@ const wordLibrary: WordLibrary = {
       'Independence', 'Mistletoe', 'Nutcracker', 'Poinsettia',
       'Candelabra', 'Evergreen', 'Noisemaker', 'Masquerade',
       'Groundhog', 'Hanukkiah', 'Peppermint', 'Caroling', 'Tradition',
-      'Decoration', 'Festival', 'Commemoration',
-      'Tablecloth', 'Centerpiece',
+      'Decoration', 'Festival', 'Jubilee',
+      'Nativity', 'Centerpiece',
     ],
   },
 
@@ -102,10 +102,10 @@ const wordLibrary: WordLibrary = {
       'Treehouse', 'Watering', 'Flowerpot',
     ],
     hard: [
-      'Hyacinth', 'Forsythia', 'Crocus', 'Bluebell', 'Primrose', 'Dogwood',
-      'Magnolia', 'Trillium', 'Bloodroot', 'Honeysuckle', 'CherryBlossom',
-      'Coltsfoot', 'Snowdrop', 'Sweetpea', 'Pollination',
-      'Photosynthesis', 'Bumblebee', 'Greenhouse', 'Wisteria', 'Jonquil',
+      'Hyacinth', 'Zinnia', 'Crocus', 'Bluebell', 'Primrose', 'Dogwood',
+      'Magnolia', 'Trillium', 'Sunflower', 'Honeysuckle', 'CherryBlossom',
+      'Daisy', 'Snowdrop', 'Sweetpea', 'Jasmine',
+      'Violet', 'Bumblebee', 'Greenhouse', 'Wisteria', 'Jonquil',
     ],
   },
 
@@ -124,10 +124,10 @@ const wordLibrary: WordLibrary = {
       'Opera',
     ],
     hard: [
-      'Semifreddo', 'Clafoutis', 'Financier', 'Charlotte', 'Millefeuille',
+      'Semifreddo', 'Clafoutis', 'Cinnamonroll', 'Charlotte', 'Millefeuille',
       'Cannele', 'Frangipane', 'Zabaglione', 'Florentine', 'Panettone',
       'Amaretti', 'Sachertorte', 'Kouignamann', 'Marzipan',
-      'Diplomat', 'Dacquoise', 'Bienenstich', 'Pannacotta', 'Galette',
+      'ZebraCake', 'Dacquoise', 'Bienenstich', 'Pannacotta', 'Galette',
     ],
   },
 
@@ -145,8 +145,8 @@ const wordLibrary: WordLibrary = {
       'Television', 'Champion', 'Creature', 'Journey',
     ],
     hard: [
-      'Blockbuster', 'Documentary', 'Cinematography', 'Choreography',
-      'Transformation', 'Apocalypse', 'Archaeologist', 'Screenwriter',
+      'Blockbuster', 'Documentary', 'Jukebox', 'Marquee',
+      'Transformation', 'Voyager', 'Archaeologist', 'Screenwriter',
       'Production', 'Illusionist', 'Multiverse', 'Adventureland',
       'Interstellar', 'Constellation', 'Expedition', 'Labyrinth',
       'Enchantment', 'Mythology', 'Legendary', 'Imagination',
