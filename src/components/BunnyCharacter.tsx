@@ -1,4 +1,5 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import type { CSSProperties } from 'react';
 
 interface Props {
   bites: number;
@@ -9,7 +10,7 @@ interface Props {
 }
 
 function CrumbParticle({ x, y, delay }: { x: number; y: number; delay: number }) {
-  const rotation = Math.random() * 360 + 'deg';
+  const rotation = `${Math.random() * 360}deg`;
   return (
     <circle
       cx={x}
@@ -17,10 +18,10 @@ function CrumbParticle({ x, y, delay }: { x: number; y: number; delay: number })
       r={Math.random() * 2 + 1}
       fill="#6B3A1A"
       style={{
-        animation: `crumbFall 0.8s ease-out forwards`,
+        animation: 'crumbFall 0.8s ease-out forwards',
         animationDelay: `${delay}ms`,
         '--crumb-rotate': rotation,
-      } as React.CSSProperties}
+      } as CSSProperties}
     />
   );
 }
@@ -28,33 +29,21 @@ function CrumbParticle({ x, y, delay }: { x: number; y: number; delay: number })
 function BiteMark({ x1, y1, x2, y2 }: { x1: number; y1: number; x2: number; y2: number }) {
   const dx = x2 - x1;
   const dy = y2 - y1;
-  const len = Math.sqrt(dx * dx + dy * dy);
-  const nx = -dy / len;
-  const ny = dx / len;
-
+  const length = Math.sqrt(dx * dx + dy * dy);
+  const nx = -dy / length;
+  const ny = dx / length;
   const points: [number, number][] = [];
-  const segments = 8;
 
-  for (let i = 0; i <= segments; i++) {
-    const t = i / segments;
+  for (let i = 0; i <= 8; i++) {
+    const t = i / 8;
     const x = x1 + dx * t;
     const y = y1 + dy * t;
     const offset = Math.sin(t * Math.PI) * 3 + (Math.random() - 0.5) * 2;
     points.push([x + nx * offset, y + ny * offset]);
   }
 
-  const pathData = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p[0]} ${p[1]}`).join(' ');
-
-  return (
-    <path
-      d={pathData}
-      fill="none"
-      stroke="#8B4513"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  );
+  const pathData = points.map((point, index) => `${index === 0 ? 'M' : 'L'} ${point[0]} ${point[1]}`).join(' ');
+  return <path d={pathData} fill="none" stroke="#8B4513" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />;
 }
 
 export function BunnyCharacter({ bites, won, onGhostAnimationComplete, onWinAnimationComplete, onExited }: Props) {
@@ -66,6 +55,7 @@ export function BunnyCharacter({ bites, won, onGhostAnimationComplete, onWinAnim
   const onGhostAnimationCompleteRef = useRef(onGhostAnimationComplete);
   const onWinAnimationCompleteRef = useRef(onWinAnimationComplete);
   const onExitedRef = useRef(onExited);
+
   useEffect(() => { onGhostAnimationCompleteRef.current = onGhostAnimationComplete; }, [onGhostAnimationComplete]);
   useEffect(() => { onWinAnimationCompleteRef.current = onWinAnimationComplete; }, [onWinAnimationComplete]);
   useEffect(() => { onExitedRef.current = onExited; }, [onExited]);
@@ -73,55 +63,40 @@ export function BunnyCharacter({ bites, won, onGhostAnimationComplete, onWinAnim
   useEffect(() => {
     if (bites > 0) {
       setAnimating(true);
-      const t = setTimeout(() => setAnimating(false), 400);
-      return () => clearTimeout(t);
+      const timer = setTimeout(() => setAnimating(false), 400);
+      return () => clearTimeout(timer);
     }
   }, [bites]);
 
   useEffect(() => {
-    if (bites < 8) {
-      setGhostPartsFading(false);
-    }
+    if (bites < 8) setGhostPartsFading(false);
   }, [bites]);
 
-  // Loss sequence: ghost outline immediately (bites>=8) -> 1.2s pause -> float away (1.2s) -> 0.4s pause -> onExited
   useEffect(() => {
-    if (bites === 8) {
-      const timers: ReturnType<typeof setTimeout>[] = [];
-      timers.push(setTimeout(() => setGhostPartsFading(true), 1200));
-      timers.push(setTimeout(() => setExiting(true), 2000));
-      timers.push(setTimeout(() => {
-        if (onGhostAnimationCompleteRef.current) {
-          onGhostAnimationCompleteRef.current();
-        }
-        if (onExitedRef.current) {
-          onExitedRef.current();
-        }
-      }, 3400));
-      return () => { timers.forEach(clearTimeout); };
-    }
+    if (bites !== 8) return;
+    const timers: ReturnType<typeof setTimeout>[] = [
+      setTimeout(() => setGhostPartsFading(true), 1200),
+      setTimeout(() => setExiting(true), 2000),
+      setTimeout(() => {
+        onGhostAnimationCompleteRef.current?.();
+        onExitedRef.current?.();
+      }, 3400),
+    ];
+    return () => timers.forEach(clearTimeout);
   }, [bites]);
 
-  // Win sequence: 1.2s pause -> wiggle (1.5s) -> 0.3s pause -> hop off (0.8s) -> 0.4s pause -> onExited
   useEffect(() => {
-    if (won) {
-      const timers: ReturnType<typeof setTimeout>[] = [];
-      timers.push(setTimeout(() => setWinAnimating(true), 1200));
-      timers.push(setTimeout(() => {
+    if (!won) return;
+    const timers: ReturnType<typeof setTimeout>[] = [
+      setTimeout(() => setWinAnimating(true), 1200),
+      setTimeout(() => {
         setWinAnimating(false);
-        if (onWinAnimationCompleteRef.current) {
-          onWinAnimationCompleteRef.current();
-        }
-      }, 2700));
-      // hop off after dance + brief pause
-      timers.push(setTimeout(() => setExiting(true), 3000));
-      timers.push(setTimeout(() => {
-        if (onExitedRef.current) {
-          onExitedRef.current();
-        }
-      }, 3800));
-      return () => { timers.forEach(clearTimeout); };
-    }
+        onWinAnimationCompleteRef.current?.();
+      }, 2700),
+      setTimeout(() => setExiting(true), 3000),
+      setTimeout(() => onExitedRef.current?.(), 3800),
+    ];
+    return () => timers.forEach(clearTimeout);
   }, [won]);
 
   const showEarLeft = bites < 1;
@@ -134,635 +109,269 @@ export function BunnyCharacter({ bites, won, onGhostAnimationComplete, onWinAnim
   const showHead = bites < 8;
   const ghostHeadOutline = bites === 8;
 
-  // Expression stages: 0=neutral, 1-2=concerned, 3-4=worried, 5-6=scared, 7=terrified
-  const getExpressionStage = (): 'neutral' | 'concerned' | 'worried' | 'scared' | 'terrified' | 'happy' => {
-    if (won) return 'happy';
-    if (bites === 0) return 'neutral';
-    if (bites <= 2) return 'concerned';
-    if (bites <= 4) return 'worried';
-    if (bites <= 6) return 'scared';
-    return 'terrified';
-  };
+  type Expression = 'neutral' | 'concerned' | 'worried' | 'scared' | 'terrified' | 'happy';
+  const expression: Expression = won
+    ? 'happy'
+    : bites === 0
+      ? 'neutral'
+      : bites <= 2
+        ? 'concerned'
+        : bites <= 4
+          ? 'worried'
+          : bites <= 6
+            ? 'scared'
+            : 'terrified';
 
-  const expression = getExpressionStage();
-
-  const eyeHighlightY = expression === 'neutral' ? 0 : expression === 'happy' ? -1 : expression === 'concerned' ? -1.5 : expression === 'worried' ? -2.5 : expression === 'scared' ? -3.5 : -4;
+  const outline = 'rgba(200, 180, 160, 0.6)';
+  const faceInk = ghostHeadOutline ? outline : '#3B170B';
+  const mouthInk = ghostHeadOutline ? outline : '#692334';
+  const cheekOpacity = expression === 'happy' ? 0.7 : expression === 'neutral' ? 0.55 : expression === 'concerned' ? 0.4 : expression === 'worried' ? 0.28 : 0.18;
 
   return (
     <div
       className="select-none relative w-full mx-auto flex justify-center"
       style={{
         animation: exiting
-          ? (bites === 8 ? 'ghostFloatAway 1.2s ease-in forwards' : 'bunnyHopOff 0.8s ease-in forwards')
-          : animating
-            ? 'bunnyShake 0.4s ease'
-            : undefined,
+          ? bites === 8 ? 'ghostFloatAway 1.2s ease-in forwards' : 'bunnyHopOff 0.8s ease-in forwards'
+          : animating ? 'bunnyShake 0.4s ease' : undefined,
       }}
     >
       <svg
         viewBox="0 0 200 270"
         xmlns="http://www.w3.org/2000/svg"
         className="w-auto h-auto max-w-[210px] md:max-w-[280px]"
-        style={{
-          maxHeight: 'calc(clamp(240px, 42vh, 340px) - 12px)',
-          aspectRatio: '200 / 270',
-        }}
+        style={{ maxHeight: 'calc(clamp(240px, 42vh, 340px) - 12px)', aspectRatio: '200 / 270' }}
       >
         <defs>
-          <mask id="leftEyeMask">
-            <circle cx="85" cy="104" r="9.5" fill="white" />
-          </mask>
-          <mask id="rightEyeMask">
-            <circle cx="115" cy="104" r="9.5" fill="white" />
-          </mask>
-
-          <radialGradient id="chocMain" cx="38%" cy="30%" r="65%">
-            <stop offset="0%" stopColor="#C48040" />
-            <stop offset="55%" stopColor="#7B4020" />
-            <stop offset="100%" stopColor="#3D1A08" />
+          <radialGradient id="bunnyChocolate" cx="34%" cy="24%" r="76%">
+            <stop offset="0%" stopColor="#C9874C" />
+            <stop offset="38%" stopColor="#9A5028" />
+            <stop offset="76%" stopColor="#642B13" />
+            <stop offset="100%" stopColor="#321006" />
           </radialGradient>
-
-          <radialGradient id="chocEar" cx="35%" cy="25%" r="65%">
-            <stop offset="0%" stopColor="#B07030" />
-            <stop offset="100%" stopColor="#4A2010" />
+          <radialGradient id="bunnyHead" cx="34%" cy="25%" r="72%">
+            <stop offset="0%" stopColor="#D2955C" />
+            <stop offset="38%" stopColor="#A85B30" />
+            <stop offset="78%" stopColor="#6A2D16" />
+            <stop offset="100%" stopColor="#3B1408" />
           </radialGradient>
-
-          <radialGradient id="innerEarGrad" cx="50%" cy="40%" r="55%">
-            <stop offset="0%" stopColor="#F0B0A8" />
-            <stop offset="100%" stopColor="#D06870" />
+          <linearGradient id="bunnyEar" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#B96A38" />
+            <stop offset="58%" stopColor="#713019" />
+            <stop offset="100%" stopColor="#3B1408" />
+          </linearGradient>
+          <linearGradient id="bunnyInnerEar" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#E49A8A" />
+            <stop offset="100%" stopColor="#9C4050" />
+          </linearGradient>
+          <radialGradient id="bunnyLimb" cx="32%" cy="22%" r="80%">
+            <stop offset="0%" stopColor="#C47A42" />
+            <stop offset="52%" stopColor="#83401F" />
+            <stop offset="100%" stopColor="#421707" />
           </radialGradient>
-
-          <radialGradient id="chocLimb" cx="40%" cy="30%" r="60%">
-            <stop offset="0%" stopColor="#B87035" />
-            <stop offset="100%" stopColor="#4A2010" />
+          <linearGradient id="heartChocolate" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#CF7B49" />
+            <stop offset="45%" stopColor="#8F3B22" />
+            <stop offset="100%" stopColor="#4A160D" />
+          </linearGradient>
+          <radialGradient id="eyeGloss" cx="35%" cy="25%" r="75%">
+            <stop offset="0%" stopColor="#6B3620" />
+            <stop offset="55%" stopColor="#241007" />
+            <stop offset="100%" stopColor="#090403" />
           </radialGradient>
-
-          <radialGradient id="chocHead" cx="40%" cy="33%" r="60%">
-            <stop offset="0%" stopColor="#C88045" />
-            <stop offset="50%" stopColor="#7B4020" />
-            <stop offset="100%" stopColor="#3D1A08" />
-          </radialGradient>
-
-          <filter id="softShadow">
-            <feDropShadow dx="0" dy="3" stdDeviation="4" floodColor="#1A0800" floodOpacity="0.35" />
+          <filter id="bunnyShadow" x="-30%" y="-30%" width="160%" height="170%">
+            <feDropShadow dx="0" dy="4" stdDeviation="4" floodColor="#220A03" floodOpacity="0.35" />
+          </filter>
+          <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="1.2" />
           </filter>
         </defs>
 
-        {/* Ground shadow */}
-        <ellipse cx="100" cy="260" rx="52" ry="7" fill="#1A0800" opacity={exiting ? 0 : 0.12} style={{ transition: 'opacity 0.6s ease-in' }} />
+        <ellipse cx="100" cy="260" rx="51" ry="7" fill="#35160B" opacity={exiting ? 0 : 0.14} style={{ transition: 'opacity 0.6s ease-in' }} />
 
-        {/* Character group — all visible parts animate together on win */}
-        <g
-          style={{
-            animation: winAnimating ? 'bunnyWiggle 1.5s ease-in-out' : 'none',
-          }}
-        >
-          {/* Ghost container - wraps all visible body parts and animates on loss */}
-          <g
-            style={{
-              animation: ghostPartsFading ? 'ghostWobble 0.8s ease-out forwards' : 'none',
-              pointerEvents: ghostPartsFading ? 'none' : 'auto',
-            }}
-          >
-            {/* Ghost visual of eaten left ear */}
-            {bites > 0 && (
-              <>
-                <ellipse
-                  cx="76" cy="42" rx="13" ry="37"
-                  fill="rgba(200, 180, 160, 0.4)"
-                  transform="rotate(-8, 76, 42)"
-                />
-                <ellipse
-                  cx="76" cy="44" rx="7" ry="24"
-                  fill="rgba(200, 180, 160, 0.2)"
-                  transform="rotate(-8, 76, 44)"
-                />
-              </>
-            )}
+        <g style={{ animation: winAnimating ? 'bunnyWiggle 1.5s ease-in-out' : 'none' }}>
+          <g style={{ animation: ghostPartsFading ? 'ghostWobble 0.8s ease-out forwards' : 'none', pointerEvents: ghostPartsFading ? 'none' : 'auto' }}>
+            {/* Ghost positions preserve the eight-piece silhouette during the loss sequence. */}
+            {bites > 0 && <ellipse cx="72" cy="42" rx="14" ry="37" fill="rgba(200,180,160,0.38)" transform="rotate(-12 72 42)" />}
+            {bites > 1 && <ellipse cx="128" cy="42" rx="14" ry="37" fill="rgba(200,180,160,0.38)" transform="rotate(12 128 42)" />}
+            {bites > 2 && <ellipse cx="143" cy="166" rx="20" ry="12" fill="rgba(200,180,160,0.38)" transform="rotate(28 143 166)" />}
+            {bites > 3 && <ellipse cx="57" cy="166" rx="20" ry="12" fill="rgba(200,180,160,0.38)" transform="rotate(-28 57 166)" />}
+            {bites > 4 && <ellipse cx="126" cy="235" rx="23" ry="15" fill="rgba(200,180,160,0.38)" />}
+            {bites > 5 && <ellipse cx="74" cy="235" rx="23" ry="15" fill="rgba(200,180,160,0.38)" />}
+            {bites > 6 && <ellipse cx="100" cy="187" rx="43" ry="54" fill="rgba(200,180,160,0.38)" />}
 
-            {/* Ghost visual of eaten right ear */}
-            {bites > 1 && (
-              <>
-                <ellipse
-                  cx="124" cy="42" rx="13" ry="37"
-                  fill="rgba(200, 180, 160, 0.4)"
-                  transform="rotate(8, 124, 42)"
-                />
-                <ellipse
-                  cx="124" cy="44" rx="7" ry="24"
-                  fill="rgba(200, 180, 160, 0.2)"
-                  transform="rotate(8, 124, 44)"
-                />
-              </>
-            )}
-
-            {/* Ghost visual of eaten right arm */}
-            {bites > 2 && (
-              <ellipse
-                cx="143" cy="180" rx="19" ry="11"
-                fill="rgba(200, 180, 160, 0.4)"
-                transform="rotate(28, 143, 180)"
-              />
-            )}
-
-            {/* Ghost visual of eaten left arm */}
-            {bites > 3 && (
-              <ellipse
-                cx="57" cy="180" rx="19" ry="11"
-                fill="rgba(200, 180, 160, 0.4)"
-                transform="rotate(-28, 57, 180)"
-              />
-            )}
-
-            {/* Ghost visual of eaten right leg */}
-            {bites > 4 && (
-              <ellipse cx="122" cy="237" rx="22" ry="13" fill="rgba(200, 180, 160, 0.4)" />
-            )}
-
-            {/* Ghost visual of eaten left leg */}
-            {bites > 5 && (
-              <ellipse cx="78" cy="237" rx="22" ry="13" fill="rgba(200, 180, 160, 0.4)" />
-            )}
-
-            {/* Ghost visual of eaten body */}
-            {bites > 6 && (
-              <ellipse cx="100" cy="192" rx="42" ry="52" fill="rgba(200, 180, 160, 0.4)" />
-            )}
-
-            {/* Ghost head - included in float animation */}
             {ghostPartsFading && bites === 8 && (
-              <g style={{ opacity: 0.5 }}>
-                <circle
-                  cx="100" cy="108" r="44"
-                  fill="none"
-                  stroke="rgba(200, 180, 160, 0.6)"
-                  strokeWidth="2"
-                />
-                <circle
-                  cx="85" cy="104" r="9.5"
-                  fill="none"
-                  stroke="rgba(200, 180, 160, 0.6)"
-                  strokeWidth="1.5"
-                />
-                <circle
-                  cx="85" cy="104" r="6.5"
-                  fill="none"
-                  stroke="rgba(200, 180, 160, 0.5)"
-                  strokeWidth="1"
-                />
-                <circle
-                  cx="115" cy="104" r="9.5"
-                  fill="none"
-                  stroke="rgba(200, 180, 160, 0.6)"
-                  strokeWidth="1.5"
-                />
-                <circle
-                  cx="115" cy="104" r="6.5"
-                  fill="none"
-                  stroke="rgba(200, 180, 160, 0.5)"
-                  strokeWidth="1"
-                />
-                <path
-                  d="M 74 112 Q 85 116 96 112"
-                  stroke="rgba(200, 180, 160, 0.6)"
-                  strokeWidth="2"
-                  fill="none"
-                  strokeLinecap="round"
-                />
-                <path
-                  d="M 104 112 Q 115 116 126 112"
-                  stroke="rgba(200, 180, 160, 0.6)"
-                  strokeWidth="2"
-                  fill="none"
-                  strokeLinecap="round"
-                />
-                <ellipse
-                  cx="100" cy="117" rx="4.5" ry="3.5"
-                  fill="none"
-                  stroke="rgba(200, 180, 160, 0.6)"
-                  strokeWidth="1"
-                />
-                <ellipse
-                  cx="100" cy="132" rx="8" ry="5"
-                  fill="none"
-                  stroke="rgba(200, 180, 160, 0.6)"
-                  strokeWidth="1"
-                />
-                <line x1="70" y1="114" x2="90" y2="117" stroke="rgba(200, 180, 160, 0.4)" strokeWidth="0.8" opacity="0.4" />
-                <line x1="70" y1="119" x2="90" y2="119" stroke="rgba(200, 180, 160, 0.4)" strokeWidth="0.8" opacity="0.4" />
-                <line x1="110" y1="117" x2="130" y2="114" stroke="rgba(200, 180, 160, 0.4)" strokeWidth="0.8" opacity="0.4" />
-                <line x1="110" y1="119" x2="130" y2="119" stroke="rgba(200, 180, 160, 0.4)" strokeWidth="0.8" opacity="0.4" />
+              <g opacity="0.55" fill="none" stroke={outline} strokeLinecap="round">
+                <path d="M62 69 Q57 48 62 19 Q66 5 75 8 Q84 14 82 35 Q80 54 82 68" strokeWidth="2" />
+                <path d="M118 68 Q120 50 118 32 Q116 13 125 8 Q135 5 139 19 Q144 48 138 69" strokeWidth="2" />
+                <ellipse cx="100" cy="104" rx="49" ry="47" strokeWidth="2" />
+                <ellipse cx="100" cy="181" rx="42" ry="54" strokeWidth="2" />
+                <ellipse cx="56" cy="166" rx="20" ry="12" strokeWidth="1.5" transform="rotate(-28 56 166)" />
+                <ellipse cx="144" cy="166" rx="20" ry="12" strokeWidth="1.5" transform="rotate(28 144 166)" />
+                <ellipse cx="74" cy="235" rx="23" ry="15" strokeWidth="1.5" />
+                <ellipse cx="126" cy="235" rx="23" ry="15" strokeWidth="1.5" />
+                <circle cx="84" cy="102" r="11" strokeWidth="1.5" />
+                <circle cx="116" cy="102" r="11" strokeWidth="1.5" />
+                <path d="M92 120 Q100 128 108 120" strokeWidth="2" />
               </g>
             )}
           </g>
 
-          {/* RIGHT EAR (behind head) */}
+          {/* Piece 2: right ear */}
           {showEarRight && (
             <g>
-              <ellipse
-                cx="124" cy="42" rx="13" ry="37"
-                fill="url(#chocEar)"
-                transform="rotate(8, 124, 42)"
-              />
-              <ellipse
-                cx="124" cy="44" rx="7" ry="24"
-                fill="url(#innerEarGrad)"
-                transform="rotate(8, 124, 44)"
-              />
-              <ellipse
-                cx="121" cy="26" rx="4" ry="7"
-                fill="white" opacity="0.1"
-                transform="rotate(8, 121, 26)"
-              />
+              <path d="M119 72 Q119 50 119 27 Q120 7 131 7 Q143 9 143 28 Q142 51 134 76 Z" fill="url(#bunnyEar)" stroke="#421607" strokeWidth="1.4" />
+              <path d="M126 62 Q126 43 127 28 Q128 17 133 17 Q138 19 137 30 Q136 48 132 63 Z" fill="url(#bunnyInnerEar)" opacity="0.86" />
+              <path d="M128 14 Q133 10 138 16" fill="none" stroke="#F4C5A2" strokeWidth="2.3" strokeLinecap="round" opacity="0.72" />
+              <ellipse cx="130" cy="23" rx="3" ry="7" fill="#FFF0DE" opacity="0.18" transform="rotate(14 130 23)" />
             </g>
           )}
 
-          {/* Bite mark between ears */}
-          {bites === 2 && showHead && (
-            <BiteMark x1="64" y1="20" x2="136" y2="20" />
-          )}
-
-          {/* LEFT EAR */}
+          {/* Piece 1: left ear */}
           {showEarLeft && (
             <g>
-              <ellipse
-                cx="76" cy="42" rx="13" ry="37"
-                fill="url(#chocEar)"
-                transform="rotate(-8, 76, 42)"
-              />
-              <ellipse
-                cx="76" cy="44" rx="7" ry="24"
-                fill="url(#innerEarGrad)"
-                transform="rotate(-8, 76, 44)"
-              />
-              <ellipse
-                cx="73" cy="18" rx="4" ry="7"
-                fill="white" opacity="0.1"
-                transform="rotate(-8, 73, 18)"
-              />
+              <path d="M81 72 Q81 50 81 27 Q80 7 69 7 Q57 9 57 28 Q58 51 66 76 Z" fill="url(#bunnyEar)" stroke="#421607" strokeWidth="1.4" />
+              <path d="M74 62 Q74 43 73 28 Q72 17 67 17 Q62 19 63 30 Q64 48 68 63 Z" fill="url(#bunnyInnerEar)" opacity="0.86" />
+              <path d="M72 14 Q67 10 62 16" fill="none" stroke="#F4C5A2" strokeWidth="2.3" strokeLinecap="round" opacity="0.72" />
+              <ellipse cx="70" cy="23" rx="3" ry="7" fill="#FFF0DE" opacity="0.18" transform="rotate(-14 70 23)" />
             </g>
           )}
 
-          {/* Bite mark: after right ear eaten */}
-          {bites === 2 && showHead && (
-            <BiteMark x1="120" y1="35" x2="130" y2="50" />
-          )}
+          {bites === 2 && showHead && <BiteMark x1="61" y1="22" x2="139" y2="22" />}
 
-          {/* BODY */}
+          {/* Piece 7: body */}
           {showBody && (
-            <g filter="url(#softShadow)">
-              <ellipse cx="100" cy="192" rx="42" ry="52" fill="url(#chocMain)" />
-              <ellipse cx="100" cy="180" rx="20" ry="24" fill="white" opacity="0.07" />
-              <ellipse
-                cx="116" cy="166" rx="10" ry="6"
-                fill="white" opacity="0.13"
-                transform="rotate(-30, 116, 166)"
-              />
-              <circle cx="100" cy="200" r="3.5" fill="#3D1A08" opacity="0.4" />
+            <g filter="url(#bunnyShadow)">
+              <ellipse cx="100" cy="184" rx="43" ry="55" fill="url(#bunnyChocolate)" stroke="#451706" strokeWidth="1.2" />
+              <ellipse cx="86" cy="164" rx="18" ry="29" fill="#F5C08A" opacity="0.09" transform="rotate(20 86 164)" />
+              <ellipse cx="82" cy="151" rx="10" ry="17" fill="#FFF2D8" opacity="0.1" transform="rotate(28 82 151)" />
+              <path d="M79 190 Q100 201 121 190" fill="none" stroke="#421607" strokeWidth="2" opacity="0.24" />
+              <path d="M88 181 Q100 170 112 181 Q100 188 88 181Z" fill="url(#heartChocolate)" stroke="#451706" strokeWidth="1" opacity="0.9" />
+              <path d="M92 178 Q96 174 100 178" fill="none" stroke="#FFD3A7" strokeWidth="1.5" strokeLinecap="round" opacity="0.48" />
             </g>
           )}
 
-          {/* Bite marks at body removal points */}
-          {bites === 3 && showBody && (
-            <BiteMark x1="138" y1="165" x2="155" y2="180" />
-          )}
-          {bites === 4 && showBody && (
-            <BiteMark x1="45" y1="165" x2="62" y2="180" />
-          )}
-          {bites === 5 && showBody && (
-            <BiteMark x1="108" y1="240" x2="138" y2="240" />
-          )}
-          {bites === 6 && showBody && (
-            <BiteMark x1="62" y1="240" x2="92" y2="240" />
-          )}
+          {bites === 3 && showBody && <BiteMark x1="137" y1="158" x2="158" y2="174" />}
+          {bites === 4 && showBody && <BiteMark x1="42" y1="174" x2="63" y2="158" />}
+          {bites === 5 && showBody && <BiteMark x1="109" y1="238" x2="143" y2="238" />}
+          {bites === 6 && showBody && <BiteMark x1="57" y1="238" x2="91" y2="238" />}
 
-          {/* RIGHT LEG */}
+          {/* Piece 5: right leg */}
           {showLegRight && (
             <g>
-              <ellipse cx="122" cy="237" rx="22" ry="13" fill="url(#chocLimb)" />
-              <ellipse cx="116" cy="233" rx="7" ry="3.5" fill="white" opacity="0.1" />
+              <ellipse cx="126" cy="235" rx="24" ry="16" fill="url(#bunnyLimb)" stroke="#451706" strokeWidth="1.3" transform="rotate(9 126 235)" />
+              <ellipse cx="120" cy="229" rx="8" ry="4" fill="#FFD5A5" opacity="0.22" transform="rotate(-10 120 229)" />
+              <ellipse cx="132" cy="240" rx="8" ry="6" fill="#4B190C" opacity="0.34" />
+              <circle cx="121" cy="239" r="3" fill="#E59B6C" opacity="0.5" />
+              <circle cx="131" cy="236" r="3" fill="#E59B6C" opacity="0.5" />
             </g>
           )}
 
-          {/* LEFT LEG */}
+          {/* Piece 6: left leg */}
           {showLegLeft && (
             <g>
-              <ellipse cx="78" cy="237" rx="22" ry="13" fill="url(#chocLimb)" />
-              <ellipse cx="72" cy="233" rx="7" ry="3.5" fill="white" opacity="0.1" />
+              <ellipse cx="74" cy="235" rx="24" ry="16" fill="url(#bunnyLimb)" stroke="#451706" strokeWidth="1.3" transform="rotate(-9 74 235)" />
+              <ellipse cx="80" cy="229" rx="8" ry="4" fill="#FFD5A5" opacity="0.22" transform="rotate(10 80 229)" />
+              <ellipse cx="68" cy="240" rx="8" ry="6" fill="#4B190C" opacity="0.34" />
+              <circle cx="79" cy="239" r="3" fill="#E59B6C" opacity="0.5" />
+              <circle cx="69" cy="236" r="3" fill="#E59B6C" opacity="0.5" />
             </g>
           )}
 
-          {/* RIGHT ARM */}
+          {/* Piece 3: right arm */}
           {showArmRight && (
             <g>
-              <ellipse
-                cx="143" cy="180" rx="19" ry="11"
-                fill="url(#chocLimb)"
-                transform="rotate(28, 143, 180)"
-              />
-              <ellipse
-                cx="138" cy="174" rx="6" ry="3.5"
-                fill="white" opacity="0.1"
-                transform="rotate(28, 138, 174)"
-              />
+              <path d="M132 157 Q143 143 157 147 Q169 152 160 164 Q151 178 135 178 Q128 174 132 157Z" fill="url(#bunnyLimb)" stroke="#451706" strokeWidth="1.3" transform="rotate(7 145 162)" />
+              <ellipse cx="143" cy="153" rx="8" ry="4" fill="#FFD5A5" opacity="0.22" transform="rotate(-26 143 153)" />
+              <path d="M154 153 Q158 155 160 159" fill="none" stroke="#4B190C" strokeWidth="1.5" strokeLinecap="round" opacity="0.55" />
             </g>
           )}
 
-          {/* LEFT ARM */}
+          {/* Piece 4: left arm */}
           {showArmLeft && (
             <g>
-              <ellipse
-                cx="57" cy="180" rx="19" ry="11"
-                fill="url(#chocLimb)"
-                transform="rotate(-28, 57, 180)"
-              />
-              <ellipse
-                cx="52" cy="174" rx="6" ry="3.5"
-                fill="white" opacity="0.1"
-                transform="rotate(-28, 52, 174)"
-              />
+              <path d="M68 157 Q57 143 43 147 Q31 152 40 164 Q49 178 65 178 Q72 174 68 157Z" fill="url(#bunnyLimb)" stroke="#451706" strokeWidth="1.3" transform="rotate(-7 55 162)" />
+              <ellipse cx="57" cy="153" rx="8" ry="4" fill="#FFD5A5" opacity="0.22" transform="rotate(26 57 153)" />
+              <path d="M46 153 Q42 155 40 159" fill="none" stroke="#4B190C" strokeWidth="1.5" strokeLinecap="round" opacity="0.55" />
             </g>
           )}
 
-          {/* HEAD */}
+          {/* Piece 8: head */}
           {(showHead || (ghostHeadOutline && !ghostPartsFading)) && (
             <g
-              filter={showHead ? 'url(#softShadow)' : undefined}
-              style={{
-                opacity: ghostHeadOutline && !ghostPartsFading ? 0.5 : ghostPartsFading ? 0 : 1,
-                transition: ghostHeadOutline ? 'opacity 0.4s ease' : 'none',
-              }}
+              filter={showHead ? 'url(#bunnyShadow)' : undefined}
+              style={{ opacity: ghostHeadOutline && !ghostPartsFading ? 0.5 : ghostPartsFading ? 0 : 1, transition: ghostHeadOutline ? 'opacity 0.4s ease' : 'none' }}
             >
-              <circle
-                cx="100" cy="108" r="44"
-                fill={ghostHeadOutline ? 'none' : 'url(#chocHead)'}
-                stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.6)' : 'none'}
-                strokeWidth={ghostHeadOutline ? 2 : 0}
-              />
+              <circle cx="100" cy="105" r="49" fill={ghostHeadOutline ? 'none' : 'url(#bunnyHead)'} stroke={ghostHeadOutline ? outline : '#451706'} strokeWidth={ghostHeadOutline ? 2 : 1.2} />
               {!ghostHeadOutline && (
-                <ellipse
-                  cx="119" cy="88" rx="13" ry="7"
-                  fill="white" opacity="0.13"
-                  transform="rotate(-35, 119, 88)"
-                />
-              )}
-
-              {/* EYES */}
-              {/* Left eye */}
-              <circle
-                cx="85" cy="104" r="9.5"
-                fill={ghostHeadOutline ? 'none' : '#1A0804'}
-                stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.6)' : 'none'}
-                strokeWidth={ghostHeadOutline ? 1.5 : 0}
-              />
-              <circle
-                cx="85" cy="104" r="6.5"
-                fill={ghostHeadOutline ? 'none' : '#2A1208'}
-                stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.5)' : 'none'}
-                strokeWidth={ghostHeadOutline ? 1 : 0}
-              />
-              {!ghostHeadOutline && (
-                <g mask="url(#leftEyeMask)">
-                  <circle
-                    cx="83" cy="102" r="2.8"
-                    fill="white"
-                    transform={`translate(0, ${eyeHighlightY})`}
-                  />
-                </g>
-              )}
-              {/* Left eye brow */}
-              {expression === 'happy' && (
-                <path
-                  d="M 78 101 Q 85 97 92 101"
-                  stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.6)' : '#1A0804'}
-                  strokeWidth="1.2"
-                  fill="none"
-                  strokeLinecap="round"
-                />
-              )}
-              {expression === 'concerned' && (
-                <path
-                  d="M 78 105 Q 85 107 92 105"
-                  stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.6)' : '#1A0804'}
-                  strokeWidth="1.2"
-                  fill="none"
-                  strokeLinecap="round"
-                />
-              )}
-              {expression === 'worried' && (
-                <path
-                  d="M 78 108 Q 85 110 92 108"
-                  stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.6)' : '#1A0804'}
-                  strokeWidth="1.5"
-                  fill="none"
-                  strokeLinecap="round"
-                />
-              )}
-              {expression === 'scared' && (
-                <path
-                  d="M 76 110 Q 85 113 94 110"
-                  stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.6)' : '#1A0804'}
-                  strokeWidth="1.8"
-                  fill="none"
-                  strokeLinecap="round"
-                />
-              )}
-              {expression === 'terrified' && (
-                <path
-                  d="M 74 112 Q 85 116 96 112"
-                  stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.6)' : '#1A0804'}
-                  strokeWidth="2"
-                  fill="none"
-                  strokeLinecap="round"
-                />
-              )}
-
-              {/* Right eye */}
-              <circle
-                cx="115" cy="104" r="9.5"
-                fill={ghostHeadOutline ? 'none' : '#1A0804'}
-                stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.6)' : 'none'}
-                strokeWidth={ghostHeadOutline ? 1.5 : 0}
-              />
-              <circle
-                cx="115" cy="104" r="6.5"
-                fill={ghostHeadOutline ? 'none' : '#2A1208'}
-                stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.5)' : 'none'}
-                strokeWidth={ghostHeadOutline ? 1 : 0}
-              />
-              {!ghostHeadOutline && (
-                <g mask="url(#rightEyeMask)">
-                  <circle
-                    cx="113" cy="102" r="2.8"
-                    fill="white"
-                    transform={`translate(0, ${eyeHighlightY})`}
-                  />
-                </g>
-              )}
-              {/* Right eye brow */}
-              {expression === 'happy' && (
-                <path
-                  d="M 108 101 Q 115 97 122 101"
-                  stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.6)' : '#1A0804'}
-                  strokeWidth="1.2"
-                  fill="none"
-                  strokeLinecap="round"
-                />
-              )}
-              {expression === 'concerned' && (
-                <path
-                  d="M 108 105 Q 115 107 122 105"
-                  stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.6)' : '#1A0804'}
-                  strokeWidth="1.2"
-                  fill="none"
-                  strokeLinecap="round"
-                />
-              )}
-              {expression === 'worried' && (
-                <path
-                  d="M 108 108 Q 115 110 122 108"
-                  stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.6)' : '#1A0804'}
-                  strokeWidth="1.5"
-                  fill="none"
-                  strokeLinecap="round"
-                />
-              )}
-              {expression === 'scared' && (
-                <path
-                  d="M 106 110 Q 115 113 124 110"
-                  stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.6)' : '#1A0804'}
-                  strokeWidth="1.8"
-                  fill="none"
-                  strokeLinecap="round"
-                />
-              )}
-              {expression === 'terrified' && (
-                <path
-                  d="M 104 112 Q 115 116 126 112"
-                  stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.6)' : '#1A0804'}
-                  strokeWidth="2"
-                  fill="none"
-                  strokeLinecap="round"
-                />
-              )}
-
-              {/* NOSE */}
-              <ellipse
-                cx="100" cy="117" rx="4.5" ry="3.5"
-                fill={ghostHeadOutline ? 'none' : '#C05870'}
-                stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.6)' : 'none'}
-                strokeWidth={ghostHeadOutline ? 1 : 0}
-              />
-              {!ghostHeadOutline && (
-                <ellipse cx="99" cy="116" rx="1.5" ry="1" fill="white" opacity="0.45" />
-              )}
-
-              {/* MOUTH */}
-              {expression === 'happy' && (
-                <path
-                  d="M 94,121 Q 100,134 106,121"
-                  stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.6)' : '#8B3840'}
-                  strokeWidth="2.5"
-                  fill="none"
-                  strokeLinecap="round"
-                />
-              )}
-              {expression === 'neutral' && (
-                <path
-                  d="M 94,123 Q 100,131 106,123"
-                  stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.6)' : '#8B3840'}
-                  strokeWidth="2"
-                  fill="none"
-                  strokeLinecap="round"
-                />
-              )}
-              {expression === 'concerned' && (
-                <path
-                  d="M 94,126 Q 100,128 106,126"
-                  stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.6)' : '#8B3840'}
-                  strokeWidth="2"
-                  fill="none"
-                  strokeLinecap="round"
-                />
-              )}
-              {expression === 'worried' && (
-                <path
-                  d="M 94,128 Q 100,125 106,128"
-                  stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.6)' : '#8B3840'}
-                  strokeWidth="2"
-                  fill="none"
-                  strokeLinecap="round"
-                />
-              )}
-              {expression === 'scared' && (
                 <>
-                  <ellipse
-                    cx="100" cy="130" rx="6" ry="4"
-                    fill={ghostHeadOutline ? 'none' : '#8B3840'}
-                    stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.6)' : 'none'}
-                    strokeWidth={ghostHeadOutline ? 1 : 0}
-                  />
-                  {!ghostHeadOutline && (
-                    <ellipse cx="100" cy="129" rx="4" ry="2.5" fill="#3D1A08" />
-                  )}
-                </>
-              )}
-              {expression === 'terrified' && (
-                <>
-                  <ellipse
-                    cx="100" cy="132" rx="8" ry="5"
-                    fill={ghostHeadOutline ? 'none' : '#8B3840'}
-                    stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.6)' : 'none'}
-                    strokeWidth={ghostHeadOutline ? 1 : 0}
-                  />
-                  {!ghostHeadOutline && (
-                    <ellipse cx="100" cy="131" rx="5.5" ry="3.5" fill="#3D1A08" />
-                  )}
+                  <ellipse cx="80" cy="79" rx="15" ry="8" fill="#FFF0D8" opacity="0.2" transform="rotate(-32 80 79)" />
+                  <ellipse cx="87" cy="70" rx="4" ry="2" fill="#FFF8E8" opacity="0.5" transform="rotate(-32 87 70)" />
                 </>
               )}
 
-              {/* CHEEK BLUSHES */}
+              {/* Large expressive eyes */}
+              <ellipse cx="83" cy="102" rx="12" ry="14" fill={ghostHeadOutline ? 'none' : 'url(#eyeGloss)'} stroke={ghostHeadOutline ? outline : '#3A1309'} strokeWidth={ghostHeadOutline ? 1.5 : 1} />
+              <ellipse cx="117" cy="102" rx="12" ry="14" fill={ghostHeadOutline ? 'none' : 'url(#eyeGloss)'} stroke={ghostHeadOutline ? outline : '#3A1309'} strokeWidth={ghostHeadOutline ? 1.5 : 1} />
               {!ghostHeadOutline && (
                 <>
-                  <circle
-                    cx="75" cy="116" r="13"
-                    fill="#FF6080"
-                    opacity={expression === 'happy' ? '0.25' : expression === 'neutral' ? '0.2' : expression === 'concerned' ? '0.15' : expression === 'worried' ? '0.1' : '0.05'}
-                  />
-                  <circle
-                    cx="125" cy="116" r="13"
-                    fill="#FF6080"
-                    opacity={expression === 'happy' ? '0.25' : expression === 'neutral' ? '0.2' : expression === 'concerned' ? '0.15' : expression === 'worried' ? '0.1' : '0.05'}
-                  />
+                  <ellipse cx="80" cy="97" rx="4.5" ry="5.5" fill="#FFFDF6" transform={expression === 'scared' || expression === 'terrified' ? 'translate(0 -2)' : undefined} />
+                  <circle cx="87" cy="108" r="2" fill="#F2B36E" opacity="0.8" />
+                  <ellipse cx="114" cy="97" rx="4.5" ry="5.5" fill="#FFFDF6" transform={expression === 'scared' || expression === 'terrified' ? 'translate(0 -2)' : undefined} />
+                  <circle cx="121" cy="108" r="2" fill="#F2B36E" opacity="0.8" />
                 </>
               )}
 
-              {/* WHISKERS */}
-              <line x1="70" y1="114" x2="90" y2="117" stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.4)' : '#3D1A08'} strokeWidth="0.8" opacity="0.4" />
-              <line x1="70" y1="119" x2="90" y2="119" stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.4)' : '#3D1A08'} strokeWidth="0.8" opacity="0.4" />
-              <line x1="110" y1="117" x2="130" y2="114" stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.4)' : '#3D1A08'} strokeWidth="0.8" opacity="0.4" />
-              <line x1="110" y1="119" x2="130" y2="119" stroke={ghostHeadOutline ? 'rgba(200, 180, 160, 0.4)' : '#3D1A08'} strokeWidth="0.8" opacity="0.4" />
+              {/* Soft brows */}
+              <path d={expression === 'happy' ? 'M74 84 Q83 79 91 84' : expression === 'terrified' ? 'M73 82 Q83 77 91 82' : 'M74 84 Q83 81 91 84'} fill="none" stroke={faceInk} strokeWidth="2.5" strokeLinecap="round" />
+              <path d={expression === 'happy' ? 'M109 84 Q117 79 126 84' : expression === 'terrified' ? 'M109 82 Q117 77 127 82' : 'M109 84 Q117 81 126 84'} fill="none" stroke={faceInk} strokeWidth="2.5" strokeLinecap="round" />
+
+              {/* Rosy cheeks */}
+              {!ghostHeadOutline && (
+                <>
+                  <ellipse cx="70" cy="120" rx="12" ry="6" fill="#F47C86" opacity={cheekOpacity} transform="rotate(-8 70 120)" />
+                  <ellipse cx="130" cy="120" rx="12" ry="6" fill="#F47C86" opacity={cheekOpacity} transform="rotate(8 130 120)" />
+                  <path d="M65 120 l4 -2 M70 122 l4 -2" stroke="#FFB0A1" strokeWidth="1" opacity="0.55" strokeLinecap="round" />
+                  <path d="M126 120 l4 2 M131 118 l4 2" stroke="#FFB0A1" strokeWidth="1" opacity="0.55" strokeLinecap="round" />
+                </>
+              )}
+
+              {/* Small heart-shaped nose and expressive mouth */}
+              <path d="M96 116 Q100 112 104 116 Q104 121 100 123 Q96 121 96 116Z" fill={ghostHeadOutline ? 'none' : '#7B2633'} stroke={ghostHeadOutline ? outline : '#42120F'} strokeWidth={ghostHeadOutline ? 1 : 0.8} />
+              {!ghostHeadOutline && <path d="M99 115 Q100 114 101 115" fill="none" stroke="#FFD6BD" strokeWidth="1" strokeLinecap="round" opacity="0.65" />}
+              {expression === 'happy' && !ghostHeadOutline ? (
+                <>
+                  <path d="M88 124 Q100 140 112 124 Q110 143 100 145 Q90 143 88 124Z" fill="#6C1D2D" stroke="#42120F" strokeWidth="1" />
+                  <path d="M94 137 Q100 132 106 137 Q104 142 100 142 Q96 142 94 137Z" fill="#FF7E91" />
+                  <path d="M91 127 Q100 132 109 127" fill="none" stroke="#FFD6BD" strokeWidth="1.2" opacity="0.6" />
+                </>
+              ) : expression === 'scared' || expression === 'terrified' ? (
+                <ellipse cx="100" cy="133" rx={expression === 'terrified' ? 8 : 6} ry={expression === 'terrified' ? 6 : 5} fill={ghostHeadOutline ? 'none' : '#45120E'} stroke={ghostHeadOutline ? outline : '#3A100C'} strokeWidth="1" />
+              ) : expression === 'worried' || expression === 'concerned' ? (
+                <path d="M92 130 Q100 125 108 130" fill="none" stroke={mouthInk} strokeWidth="2.4" strokeLinecap="round" />
+              ) : (
+                <path d="M92 127 Q100 134 108 127" fill="none" stroke={mouthInk} strokeWidth="2.4" strokeLinecap="round" />
+              )}
+
+              {!ghostHeadOutline && (
+                <>
+                  <path d="M67 113 L80 116 M67 119 L80 119 M133 113 L120 116 M133 119 L120 119" stroke="#4A1A0C" strokeWidth="0.8" opacity="0.35" strokeLinecap="round" />
+                </>
+              )}
             </g>
           )}
 
-          {/* Bite mark at neck */}
-          {bites === 7 && showHead && (
-            <BiteMark x1="65" y1="148" x2="135" y2="148" />
-          )}
+          {bites === 7 && showHead && <BiteMark x1="56" y1="151" x2="144" y2="151" />}
 
-          {/* Chocolate crumb particles during win wiggle */}
           {winAnimating && (
             <g style={{ pointerEvents: 'none' }}>
-              <CrumbParticle x={70} y={100} delay={0} />
-              <CrumbParticle x={130} y={95} delay={100} />
-              <CrumbParticle x={85} y={85} delay={200} />
-              <CrumbParticle x={115} y={90} delay={300} />
-              <CrumbParticle x={100} y={80} delay={400} />
-              <CrumbParticle x={75} y={110} delay={150} />
-              <CrumbParticle x={125} y={105} delay={250} />
-              <CrumbParticle x={90} y={70} delay={500} />
-              <CrumbParticle x={110} y={75} delay={350} />
-              <CrumbParticle x={80} y={120} delay={450} />
+              <CrumbParticle x={70} y={96} delay={0} />
+              <CrumbParticle x={130} y={92} delay={100} />
+              <CrumbParticle x={84} y={76} delay={200} />
+              <CrumbParticle x={116} y={78} delay={300} />
+              <CrumbParticle x={100} y={70} delay={400} />
+              <CrumbParticle x={76} y={112} delay={150} />
+              <CrumbParticle x={124} y={108} delay={250} />
             </g>
           )}
         </g>
