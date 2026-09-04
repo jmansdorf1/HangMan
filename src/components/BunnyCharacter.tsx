@@ -220,20 +220,20 @@ export function BunnyCharacter({ bites, won, onGhostAnimationComplete, onWinAnim
           {/* Piece 2: right ear */}
           {showEarRight && (
             <g>
-              <path d="M119 72 Q119 50 119 27 Q120 7 131 7 Q143 9 143 28 Q142 51 134 76 Z" fill="url(#bunnyEar)" stroke="#421607" strokeWidth="1.4" />
-              <path d="M126 62 Q126 43 127 28 Q128 17 133 17 Q138 19 137 30 Q136 48 132 63 Z" fill="url(#bunnyInnerEar)" opacity="0.86" />
-              <path d="M128 14 Q133 10 138 16" fill="none" stroke="#F4C5A2" strokeWidth="2.3" strokeLinecap="round" opacity="0.72" />
-              <ellipse cx="130" cy="23" rx="3" ry="7" fill="#FFF0DE" opacity="0.18" transform="rotate(14 130 23)" />
+              <path d="M116 76 Q117 51 123 25 Q129 5 142 8 Q156 12 153 31 Q149 58 134 83 Z" fill="url(#bunnyEar)" stroke="#421607" strokeWidth="1.4" />
+              <path d="M125 69 Q127 47 131 29 Q134 17 140 18 Q146 20 143 33 Q139 53 132 72 Z" fill="url(#bunnyInnerEar)" opacity="0.88" />
+              <path d="M131 15 Q138 10 145 17" fill="none" stroke="#F4C5A2" strokeWidth="2.3" strokeLinecap="round" opacity="0.72" />
+              <ellipse cx="136" cy="23" rx="3.5" ry="8" fill="#FFF0DE" opacity="0.18" transform="rotate(18 136 23)" />
             </g>
           )}
 
           {/* Piece 1: left ear */}
           {showEarLeft && (
             <g>
-              <path d="M81 72 Q81 50 81 27 Q80 7 69 7 Q57 9 57 28 Q58 51 66 76 Z" fill="url(#bunnyEar)" stroke="#421607" strokeWidth="1.4" />
-              <path d="M74 62 Q74 43 73 28 Q72 17 67 17 Q62 19 63 30 Q64 48 68 63 Z" fill="url(#bunnyInnerEar)" opacity="0.86" />
-              <path d="M72 14 Q67 10 62 16" fill="none" stroke="#F4C5A2" strokeWidth="2.3" strokeLinecap="round" opacity="0.72" />
-              <ellipse cx="70" cy="23" rx="3" ry="7" fill="#FFF0DE" opacity="0.18" transform="rotate(-14 70 23)" />
+              <path d="M84 76 Q83 51 77 25 Q71 5 58 8 Q44 12 47 31 Q51 58 66 83 Z" fill="url(#bunnyEar)" stroke="#421607" strokeWidth="1.4" />
+              <path d="M75 69 Q73 47 69 29 Q66 17 60 18 Q54 20 57 33 Q61 53 68 72 Z" fill="url(#bunnyInnerEar)" opacity="0.88" />
+              <path d="M69 15 Q62 10 55 17" fill="none" stroke="#F4C5A2" strokeWidth="2.3" strokeLinecap="round" opacity="0.72" />
+              <ellipse cx="64" cy="23" rx="3.5" ry="8" fill="#FFF0DE" opacity="0.18" transform="rotate(-18 64 23)" />
             </g>
           )}
 
@@ -242,12 +242,11 @@ export function BunnyCharacter({ bites, won, onGhostAnimationComplete, onWinAnim
           {/* Piece 7: body */}
           {showBody && (
             <g filter="url(#bunnyShadow)">
-              <ellipse cx="100" cy="184" rx="43" ry="55" fill="url(#bunnyChocolate)" stroke="#451706" strokeWidth="1.2" />
-              <ellipse cx="86" cy="164" rx="18" ry="29" fill="#F5C08A" opacity="0.09" transform="rotate(20 86 164)" />
-              <ellipse cx="82" cy="151" rx="10" ry="17" fill="#FFF2D8" opacity="0.1" transform="rotate(28 82 151)" />
-              <path d="M79 190 Q100 201 121 190" fill="none" stroke="#421607" strokeWidth="2" opacity="0.24" />
-              <path d="M88 181 Q100 170 112 181 Q100 188 88 181Z" fill="url(#heartChocolate)" stroke="#451706" strokeWidth="1" opacity="0.9" />
-              <path d="M92 178 Q96 174 100 178" fill="none" stroke="#FFD3A7" strokeWidth="1.5" strokeLinecap="round" opacity="0.48" />
+              <path d="M66 158 Q68 143 82 137 Q100 130 118 137 Q132 143 134 158 L139 204 Q137 228 121 238 Q100 247 79 238 Q63 228 61 204 Z" fill="url(#bunnyChocolate)" stroke="#451706" strokeWidth="1.2" />
+              <ellipse cx="84" cy="163" rx="17" ry="24" fill="#F5C08A" opacity="0.1" transform="rotate(18 84 163)" />
+              <ellipse cx="80" cy="151" rx="9" ry="14" fill="#FFF2D8" opacity="0.12" transform="rotate(28 80 151)" />
+              <path d="M86 181 C86 173 95 170 100 177 C105 170 114 173 114 181 C114 191 100 199 100 199 C100 199 86 191 86 181Z" fill="url(#heartChocolate)" stroke="#451706" strokeWidth="1.2" opacity="0.92" />
+              <path d="M91 179 Q95 174 100 177" fill="none" stroke="#FFD3A7" strokeWidth="1.5" strokeLinecap="round" opacity="0.55" />
             </g>
           )}
 
@@ -259,40 +258,44 @@ export function BunnyCharacter({ bites, won, onGhostAnimationComplete, onWinAnim
           {/* Piece 5: right leg */}
           {showLegRight && (
             <g>
-              <ellipse cx="126" cy="235" rx="24" ry="16" fill="url(#bunnyLimb)" stroke="#451706" strokeWidth="1.3" transform="rotate(9 126 235)" />
-              <ellipse cx="120" cy="229" rx="8" ry="4" fill="#FFD5A5" opacity="0.22" transform="rotate(-10 120 229)" />
-              <ellipse cx="132" cy="240" rx="8" ry="6" fill="#4B190C" opacity="0.34" />
-              <circle cx="121" cy="239" r="3" fill="#E59B6C" opacity="0.5" />
-              <circle cx="131" cy="236" r="3" fill="#E59B6C" opacity="0.5" />
+              <ellipse cx="128" cy="232" rx="28" ry="20" fill="url(#bunnyLimb)" stroke="#451706" strokeWidth="1.3" transform="rotate(9 128 232)" />
+              <ellipse cx="121" cy="224" rx="9" ry="4.5" fill="#FFD5A5" opacity="0.24" transform="rotate(-10 121 224)" />
+              <ellipse cx="130" cy="238" rx="10" ry="8" fill="#4B190C" opacity="0.38" />
+              <ellipse cx="130" cy="237" rx="7" ry="6" fill="#A95731" opacity="0.78" />
+              <circle cx="117" cy="232" r="3.5" fill="#E59B6C" opacity="0.6" />
+              <circle cx="127" cy="226" r="3.5" fill="#E59B6C" opacity="0.6" />
+              <circle cx="138" cy="231" r="3.5" fill="#E59B6C" opacity="0.6" />
             </g>
           )}
 
           {/* Piece 6: left leg */}
           {showLegLeft && (
             <g>
-              <ellipse cx="74" cy="235" rx="24" ry="16" fill="url(#bunnyLimb)" stroke="#451706" strokeWidth="1.3" transform="rotate(-9 74 235)" />
-              <ellipse cx="80" cy="229" rx="8" ry="4" fill="#FFD5A5" opacity="0.22" transform="rotate(10 80 229)" />
-              <ellipse cx="68" cy="240" rx="8" ry="6" fill="#4B190C" opacity="0.34" />
-              <circle cx="79" cy="239" r="3" fill="#E59B6C" opacity="0.5" />
-              <circle cx="69" cy="236" r="3" fill="#E59B6C" opacity="0.5" />
+              <ellipse cx="72" cy="232" rx="28" ry="20" fill="url(#bunnyLimb)" stroke="#451706" strokeWidth="1.3" transform="rotate(-9 72 232)" />
+              <ellipse cx="79" cy="224" rx="9" ry="4.5" fill="#FFD5A5" opacity="0.24" transform="rotate(10 79 224)" />
+              <ellipse cx="70" cy="238" rx="10" ry="8" fill="#4B190C" opacity="0.38" />
+              <ellipse cx="70" cy="237" rx="7" ry="6" fill="#A95731" opacity="0.78" />
+              <circle cx="83" cy="232" r="3.5" fill="#E59B6C" opacity="0.6" />
+              <circle cx="73" cy="226" r="3.5" fill="#E59B6C" opacity="0.6" />
+              <circle cx="62" cy="231" r="3.5" fill="#E59B6C" opacity="0.6" />
             </g>
           )}
 
           {/* Piece 3: right arm */}
           {showArmRight && (
             <g>
-              <path d="M132 157 Q143 143 157 147 Q169 152 160 164 Q151 178 135 178 Q128 174 132 157Z" fill="url(#bunnyLimb)" stroke="#451706" strokeWidth="1.3" transform="rotate(7 145 162)" />
-              <ellipse cx="143" cy="153" rx="8" ry="4" fill="#FFD5A5" opacity="0.22" transform="rotate(-26 143 153)" />
-              <path d="M154 153 Q158 155 160 159" fill="none" stroke="#4B190C" strokeWidth="1.5" strokeLinecap="round" opacity="0.55" />
+              <path d="M126 157 Q139 138 155 139 Q171 141 168 154 Q164 172 145 181 Q132 180 126 157Z" fill="url(#bunnyLimb)" stroke="#451706" strokeWidth="1.3" transform="rotate(7 145 160)" />
+              <ellipse cx="143" cy="148" rx="9" ry="5" fill="#FFD5A5" opacity="0.24" transform="rotate(-26 143 148)" />
+              <path d="M157 146 Q164 149 165 155 M153 145 Q158 141 161 140" fill="none" stroke="#4B190C" strokeWidth="1.6" strokeLinecap="round" opacity="0.6" />
             </g>
           )}
 
           {/* Piece 4: left arm */}
           {showArmLeft && (
             <g>
-              <path d="M68 157 Q57 143 43 147 Q31 152 40 164 Q49 178 65 178 Q72 174 68 157Z" fill="url(#bunnyLimb)" stroke="#451706" strokeWidth="1.3" transform="rotate(-7 55 162)" />
-              <ellipse cx="57" cy="153" rx="8" ry="4" fill="#FFD5A5" opacity="0.22" transform="rotate(26 57 153)" />
-              <path d="M46 153 Q42 155 40 159" fill="none" stroke="#4B190C" strokeWidth="1.5" strokeLinecap="round" opacity="0.55" />
+              <path d="M74 157 Q61 138 45 139 Q29 141 32 154 Q36 172 55 181 Q68 180 74 157Z" fill="url(#bunnyLimb)" stroke="#451706" strokeWidth="1.3" transform="rotate(-7 55 160)" />
+              <ellipse cx="57" cy="148" rx="9" ry="5" fill="#FFD5A5" opacity="0.24" transform="rotate(26 57 148)" />
+              <path d="M43 146 Q36 149 35 155 M47 145 Q42 141 39 140" fill="none" stroke="#4B190C" strokeWidth="1.6" strokeLinecap="round" opacity="0.6" />
             </g>
           )}
 
@@ -302,7 +305,7 @@ export function BunnyCharacter({ bites, won, onGhostAnimationComplete, onWinAnim
               filter={showHead ? 'url(#bunnyShadow)' : undefined}
               style={{ opacity: ghostHeadOutline && !ghostPartsFading ? 0.5 : ghostPartsFading ? 0 : 1, transition: ghostHeadOutline ? 'opacity 0.4s ease' : 'none' }}
             >
-              <circle cx="100" cy="105" r="49" fill={ghostHeadOutline ? 'none' : 'url(#bunnyHead)'} stroke={ghostHeadOutline ? outline : '#451706'} strokeWidth={ghostHeadOutline ? 2 : 1.2} />
+              <path d="M100 56 C131 56 149 76 149 105 C149 135 130 153 100 155 C70 153 51 135 51 105 C51 76 69 56 100 56Z" fill={ghostHeadOutline ? 'none' : 'url(#bunnyHead)'} stroke={ghostHeadOutline ? outline : '#451706'} strokeWidth={ghostHeadOutline ? 2 : 1.2} />
               {!ghostHeadOutline && (
                 <>
                   <ellipse cx="80" cy="79" rx="15" ry="8" fill="#FFF0D8" opacity="0.2" transform="rotate(-32 80 79)" />
@@ -311,8 +314,8 @@ export function BunnyCharacter({ bites, won, onGhostAnimationComplete, onWinAnim
               )}
 
               {/* Large expressive eyes */}
-              <ellipse cx="83" cy="102" rx="12" ry="14" fill={ghostHeadOutline ? 'none' : 'url(#eyeGloss)'} stroke={ghostHeadOutline ? outline : '#3A1309'} strokeWidth={ghostHeadOutline ? 1.5 : 1} />
-              <ellipse cx="117" cy="102" rx="12" ry="14" fill={ghostHeadOutline ? 'none' : 'url(#eyeGloss)'} stroke={ghostHeadOutline ? outline : '#3A1309'} strokeWidth={ghostHeadOutline ? 1.5 : 1} />
+              <ellipse cx="84" cy="102" rx="10" ry="13" fill={ghostHeadOutline ? 'none' : 'url(#eyeGloss)'} stroke={ghostHeadOutline ? outline : '#3A1309'} strokeWidth={ghostHeadOutline ? 1.5 : 1} />
+              <ellipse cx="116" cy="102" rx="10" ry="13" fill={ghostHeadOutline ? 'none' : 'url(#eyeGloss)'} stroke={ghostHeadOutline ? outline : '#3A1309'} strokeWidth={ghostHeadOutline ? 1.5 : 1} />
               {!ghostHeadOutline && (
                 <>
                   <ellipse cx="80" cy="97" rx="4.5" ry="5.5" fill="#FFFDF6" transform={expression === 'scared' || expression === 'terrified' ? 'translate(0 -2)' : undefined} />
